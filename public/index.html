@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="HTML, CSS, JavaScript"> 
+    <title>TopSpeed Servicios Automotrices</title>
+    <link href="../CSS/style.css" rel="stylesheet"></link>
+    <script src="../scripts/script.js" defer></script>
+    <script src="../scripts/carrito.js" defer></script>
+</head>
+<body>
+    <header>
+        <img id="logo" src="../images/logo.png" width="640" height="172" alt="Logo"/>
+        <div id="carrito" onclick="toggleCart()">
+            <img src="../images/carrito.png" alt="Carrito de Compras">
+        </div> 
+    </header>
+    <div id="menu-icon">
+        <img src="../images/icono.png" alt="Menú" onclick="toggleMenu()">
+    </div>
+    <div id="botones">
+        <nav id= "pie">
+            <u2>
+                <li><a href="../pages/register.html">Regístrate</a></li>
+            </u2>
+        </nav>
+    </div>
+    <nav id="menuprincipal">
+        <div>
+            <u1>
+                <li><a href="../pages/servicios.html">Servicios</a></li>
+                <li><a href="../pages/showroom.html">Showroom</a></li>
+            </u1>
+        </div>
+    </nav>
+    <article>
+    <h2>Taller Automotriz, Off-road y Detailing</h2>
+    <h3>Ubicación</h3>
+    <h3>Av. Juan de Ascaray y Jorge Dromm, Quito 170102, Ecuador</h3>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.801566658832!2d-78.48787322503543!3d-0.16604139983232205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d59bf417951a9f%3A0xfbd4c06f95ea718b!2sTOPSPEED%20Servicios%20Automotr%C3%ADces!5e0!3m2!1ses-419!2sec!4v1728491130887!5m2!1ses-419!2sec" 
+            width="600" 
+            height="450" 
+            style="border:0;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <div id="login-modal" class="hidden">
+            <div class="login-content">
+                <h2>Iniciar Sesión</h2>
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" required>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" required>
+                <button id="login-button">Iniciar Sesión</button>
+                <button onclick="closeLogin()">Cancelar</button>
+            </div>
+        </div>        
+        <div id="cart-modal" class="hidden">
+            <div class="cart-content">
+                <button class="close-cart" onclick="toggleCart()">×</button>
+                <h2>Tu Carrito</h2>
+                <ul id="cart-items"></ul>
+                <div id="cart-summary">
+                    <p>Subtotal: $<span id="subtotal">0.00</span></p>
+                    <p>IVA (15%): $<span id="iva">0.00</span></p>
+                    <p>Total: $<span id="total">0.00</span></p>
+                </div>
+                <button id="checkout-button" class="checkout-btn">Proceder al Pago</button>
+            </div>
+        </div>
+    </article>
+    <footer>
+        <div id="botones">
+            <nav id= "pie">
+                <u2>
+                    <li><a href="tel:+593999312120">Llámanos</a></li>
+                    <li><a href="https://www.instagram.com/topspeed.ec/">@topspeed.ec</a></li>
+                </u2>
+            </nav>
+        </div>
+        <div id="modo">
+            <h4>Tema Claro  </h2>
+            <div id="modo-container">
+                <label class="switch">
+                    <input type="checkbox" id="toggle-mode" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <h4>  Tema Oscuro</h2>
+        </div>
+    </footer>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById("menuprincipal");
+            menu.classList.toggle("active");
+        }
+    </script>
+</body>
+</html>

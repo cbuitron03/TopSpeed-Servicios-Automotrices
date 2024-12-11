@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="HTML, CSS, JavaScript"> 
+    <title>Showroom</title>
+    <link href="../CSS/style.css" rel="stylesheet"></link>
+    <script src="../scripts/script.js" defer></script>
+    <script src="../scripts/carrito.js" defer></script>
+    <script src="../scripts/videos.js" defer></script>
+</head>
+<body>
+    <header>
+        <img src="../images/logo.png" width="640" height="172" alt="Logo"/>
+        <div id="carrito" onclick="toggleCart()">
+            <img src="../images/carrito.png" alt="Carrito de Compras">
+        </div> 
+    </header>
+    <div id="menu-icon">
+        <img src="../images/icono.png" alt="Menú" onclick="toggleMenu()">
+    </div>
+    <nav id="menuprincipal">
+        <div>
+            <u1>
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="../pages/servicios.html">Servicios</a></li>
+            </u1>
+        </div>
+    </nav>
+    <article>
+    <h1>Showroom</h1>
+    <h2>Vehículos Trabajados</h2>
+        <div class="galeria2">
+            <img src="../images/showroom/raptor.jpg" width="784" height="442" alt="Raptor"/>
+            <div class="custom-player">
+                <div id="youtube-player-1"></div>
+                <div class="player-controls">
+                    <button id="play-button-1" class="boton">Reproducir</button>
+                    <button id="pause-button-1" class="boton">Pausar</button>
+                    <button id="mute-button-1" class="boton">Silenciar</button>
+                </div>
+            </div>
+            <h3>Ford Raptor</h3>
+            <h4>Instalación Lift Kit Rough Country 4 pulgadas, aros y llantas</h4>
+            <img src="../images/showroom/hilux.jpg" width="784" height="442" alt="Hilux"/>
+            <div class="custom-player">
+                <div id="youtube-player-2"></div>
+                <div class="player-controls">
+                    <button id="play-button-2" class="boton">Reproducir</button>
+                    <button id="pause-button-2" class="boton">Pausar</button>
+                    <button id="mute-button-2" class="boton">Silenciar</button>
+                </div>
+            </div>
+            <h3>Toyota Hilux</h3>
+            <h4>Accesorización Off-Road Completa</h4>
+            <img src="../images/showroom/rubicon.png" width="758" height="480" alt="Rubicon"/>
+            <div class="custom-player">
+                <div id="youtube-player-3"></div>
+                <div class="player-controls">
+                    <button id="play-button-3" class="boton">Reproducir</button>
+                    <button id="pause-button-3" class="boton">Pausar</button>
+                    <button id="mute-button-3" class="boton">Silenciar</button>
+                </div>
+            </div>
+            <h3>Jeep Rubicon</h3>
+            <h4>Lift Kit 2 pulgadas, llantas y aros</h4>
+        </div>
+        <div id="login-modal" class="hidden">
+            <div class="login-content">
+                <h2>Iniciar Sesión</h2>
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" required>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" required>
+                <button id="login-button">Iniciar Sesión</button>
+                <button onclick="closeLogin()">Cancelar</button>
+            </div>
+        </div>
+        <div id="cart-modal" class="hidden">
+            <div class="cart-content">
+                <button class="close-cart" onclick="toggleCart()">×</button>
+                <h2>Tu Carrito</h2>
+                <ul id="cart-items"></ul>
+                <div id="cart-summary">
+                    <p>Subtotal: $<span id="subtotal">0.00</span></p>
+                    <p>IVA (15%): $<span id="iva">0.00</span></p>
+                    <p>Total: $<span id="total">0.00</span></p>
+                </div>
+                <button id="checkout-button" class="checkout-btn">Proceder al Pago</button>
+            </div>
+        </div>
+    </article>
+    <footer>
+        <div id="botones">
+            <nav id= "pie">
+                <u2>
+                    <li><a href="tel:+593999312120">Llámanos</a></li>
+                    <li><a href="https://www.instagram.com/topspeed.ec/">@topspeed.ec</a></li>
+                </u2>
+            </nav>
+        </div>
+    </footer>
+</body>
+</html>

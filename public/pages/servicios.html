@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="HTML, CSS, JavaScript"> 
+    <title>Servicios</title>
+    <link href="../CSS/style.css" rel="stylesheet"></link>
+    <script src="../scripts/script.js" defer></script>
+    <script src="../scripts/carrito.js" defer></script>
+</head>
+<body>
+    <header>
+        <img src="../images/logo.png" width="640" height="172" alt="Logo"/>
+        <div id="carrito" onclick="toggleCart()">
+            <img src="../images/carrito.png" alt="Carrito de Compras">
+        </div>        
+    </header>
+    <div id="menu-icon">
+        <img src="../images/icono.png" alt="Menú" onclick="toggleMenu()">
+    </div>
+    <nav id="menuprincipal">
+        <div>
+            <u1>
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="../pages/showroom.html">Showroom</a></li>
+            </u1>
+        </div>
+    </nav>
+    <article>
+        <h1>Servicios</h1>
+        <h2>Accesorios Off-Road</h2>
+        <div class="galeria">
+            <div class="item" data-nombre="Cabrestante" data-precio="900.00">
+                <img class="imagen" src="../images/servicios/wincha-min.png" width="327" height="410" onclick="abrirModal('Cabrestante', 'Warn Zeon 15000LB $900.00', ['../images/servicios/wincha.png', '../images/servicios/wincha2.png'])" alt="Cabrestantes">
+                <div class="descripcion">Cabrestantes - $900.00</div>
+            </div>
+            <div class="item" data-nombre="Halógenos" data-precio="675.00">
+                <img class="imagen" src="../images/servicios/halogeno-min.png" width="327" height="410" onclick="abrirModal('Halógenos', 'Par Dobinsons LED 8inch $675.00 ', ['../images/servicios/halogeno.png', '../images/servicios/halogeno2.png'])" alt="Neblineros"/>
+                <div class="descripcion">Iluminación - $675.00</div>
+            </div>
+            <div class="item" data-nombre="Suspensión Fox" data-precio="2300.00">
+                <img class="imagen" src="../images/servicios/suspen-min.png" width="327" height="410" onclick="abrirModal('Suspensión Fox', 'Fox Performance Coilovers Kit $2300.00', ['../images/servicios/suspen.png', '../images/servicios/suspen2.png', '../images/servicios/suspen3.png'])" alt="Suspensiones"/>
+                <div class="descripcion">Suspensiones y Lift Kits - $2300.00</div>
+            </div>
+        </div>    
+        <h2>Mantenimiento</h2>   
+        <div class="galeria">
+            <div class="item" data-nombre="Cita ABC de Frenos" data-precio="0.00">
+                <img class="imagen" src="../images/servicios/abcfrenos-min.png" width="327" height="409" onclick="abrirModal('Cita ABC de Frenos', 'Cambio, Limpieza y Mantenimiento', ['../images/servicios/abcfrenos.png', '../images/servicios/abcfrenos2.png'])" alt="ABC Frenos"/>
+                <div class="descripcion">Cita ABC de Frenos</div>
+            </div>
+            <div class="item" data-nombre="Cita Enllantaje" data-precio="0.00">
+                <img class="imagen" src="../images/servicios/enllantaje-min.png" width="328" height="409" onclick="abrirModal('Cita Enllantaje', 'Enllantaje Especializado', ['../images/servicios/enllantaje.png' , '../images/servicios/enllantaje2.png'])" alt="Enllantaje"/>
+                <div class="descripcion">Cita Enllantaje</div>
+            </div>
+            <div class="item" data-nombre="Cita Alineación" data-precio="0.00">
+                <img class="imagen" src="../images/servicios/alineacion-min.png" width="328" height="412" onclick="abrirModal('Cita Alineación', 'Alineación Computarizda', ['../images/servicios/alineacion.png' , '../images/servicios/alineacion2.png'])" alt="Alineación"/>
+                <div class="descripcion">Cita Alineación</div>
+            </div>
+            <div class="item" data-nombre="Cita Balanceo" data-precio="0.00">
+                <img class="imagen" src="../images/servicios/balanceo-min.png" width="329" height="409" onclick="abrirModal('Cita Balanceo', 'Balanceo Electrónico', ['../images/servicios/balanceo.png'])" alt="Balanceo"/>
+                <div class="descripcion">Cita Balanceo</div>
+            </div>
+        </div>
+        <h2>Detailing</h2>
+        <div class="galeria">
+            <div class="item" data-nombre="Cita Detailing Exterior" data-precio="0.00"> 
+                <img class="imagen" src="../images/servicios/detailing1-min.png" width="411" height="308" onclick="abrirModal('Cita Detailing Exterior', 'Lavado, Encerado, Pulido, Recubrimiento Cerámico', ['../images/servicios/detailing1.png'])" alt="Detailing Exterior"/>
+                <div class="descripcion">Cita Detailing Exterior</div>
+            </div>
+            <div class="item" data-nombre="Cita Detailing Interior" data-precio="0.00">
+                <img class="imagen" src="../images/servicios/detailing2-min.png" width="411" height="308" onclick="abrirModal('Cita Detailing Interior', 'Detailing Interior Completo', ['../images/servicios/detailing2.png'])" alt="Detailing Interior"/>
+                <div class="descripcion">Cita Detailing Interior</div>
+            </div>
+            <div class="item" data-nombre="Cita Detailing de Motor" data-precio="0.00">
+                <img class="imagen" src="../images/servicios/detailing3-min.png" width="411" height="308" onclick="abrirModal('Cita Detailing de Motor', 'Limpieza y Detallado', ['../images/servicios/detailing3.png'])" alt="Detailing Motor"/>
+                <div class="descripcion">Cita Detailing de Motor</div>
+            </div>
+        </div>
+        
+            <!-- Modal para mostrar las imágenes del producto -->
+        <div id="modal">
+            <div id="modal-content">
+                <button class="close-btn" onclick="cerrarModal()">×</button>
+                <img id="main-img" src="" alt="">
+                <div class="modal-img-container" id="modal-img-container"></div>
+                <div id="modal-desc" class="descripcion"></div>
+                <div class="cantidad">
+                    <label for="cantidad">Cantidad:</label>
+                    <input type="number" id="cantidad" min="1" value="1">
+                </div>
+                <button class="comprar-btn" onclick="comprarProducto()">Comprar</button>
+            </div>
+        </div>
+        <div id="login-modal" class="hidden">
+            <div class="login-content">
+                <h2>Iniciar Sesión</h2>
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" required>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" required>
+                <button id="login-button">Iniciar Sesión</button>
+                <button onclick="closeLogin()">Cancelar</button>
+            </div>
+        </div>
+        <div id="cart-modal" class="hidden">
+            <div class="cart-content">
+                <button class="close-cart" onclick="toggleCart()">×</button>
+                <h2>Tu Carrito</h2>
+                <ul id="cart-items"></ul>
+                <div id="cart-summary">
+                    <p>Subtotal: $<span id="subtotal">0.00</span></p>
+                    <p>IVA (15%): $<span id="iva">0.00</span></p>
+                    <p>Total: $<span id="total">0.00</span></p>
+                </div>
+                <button id="checkout-button" class="checkout-btn">Proceder al Pago</button>
+            </div>
+        </div>
+    </article>
+    <footer>
+        <div id="botones">
+            <nav id= "pie">
+                <u2>
+                    <li><a href="tel:+593999312120">Llámanos</a></li>
+                    <li><a href="https://www.instagram.com/topspeed.ec/">@topspeed.ec</a></li>
+                </u2>
+            </nav>
+        </div>
+    </footer>
+    </body>
+</html>

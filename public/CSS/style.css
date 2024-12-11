@@ -1,0 +1,648 @@
+body {
+  background-color: black;
+  text-align: center;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  color: white;
+}
+/* Estilo común para todos los botones */
+.boton {
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+  background-color: white;
+  padding: 10px 20px;
+  border: 2px solid black;
+  border-radius: 5px;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  text-align: center;
+  cursor: pointer;
+  margin: 5px; /* Espaciado entre los botones */
+}
+
+.boton:hover {
+  background-color: lightgray;
+}
+
+/* Switch Toggle */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: lightcoral; /* Color del slider cuando está activado */
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px); /* Mueve el círculo del slider cuando se activa */
+}
+#modo {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Alinea verticalmente */
+  gap: 10px; /* Espaciado entre los elementos */
+  margin-top: 20px; /* Ajusta la separación superior si es necesario */
+}
+
+#modo h4 {
+  margin: 0; /* Elimina márgenes extra de los textos */
+}
+
+/* Contenedor del toggle */
+#modo-container {
+  align-items:center;
+  display: block;
+}
+#modo-container h2{
+  padding: 0.25em;
+}
+
+input{
+  margin-bottom: 0.5em;
+}
+select{
+  margin-bottom: 0.5em;
+}
+/* Estilos del modal del carrito */
+#cart-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.cart-content {
+  background: white; /* Fondo blanco */
+  color: black; /* Texto negro */
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 500px;
+  text-align: left; /* Alineación izquierda para contenido */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombras para resaltar */
+}
+
+.cart-content h2 {
+  color: black; /* Encabezado negro */
+  margin-bottom: 20px;
+}
+
+#cart-items {
+  list-style: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+#cart-items li {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  color: black; /* Texto negro */
+}
+
+#cart-items img {
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+#cart-summary {
+  margin-top: 20px;
+  text-align: right;
+  color: black; /* Resumen en negro */
+}
+
+#cart-summary p {
+  margin: 5px 0;
+}
+
+button {
+  background-color: #28a745; /* Botón verde */
+  color: white; /* Texto blanco en los botones */
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #218838; /* Botón verde más oscuro al pasar el cursor */
+}
+
+.close-cart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: rgb(255, 255, 255); /* Ícono de cierre blacno */
+}
+
+.checkout-btn {
+  display: block;
+  margin-top: 20px;
+  width: 100%;
+  background-color: #218838; /* Azul para el botón de pago */
+  color: white;
+  border: none;
+  padding: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.checkout-btn:hover {
+  background-color: #218838; /* Azul más oscuro al pasar el cursor */
+}
+.hidden {
+  display: none !important;
+  
+}
+button{
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+#carrito {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+}
+#carrito img {
+  width: 100%;
+  height: 100%;
+}
+#iframe{
+  border-radius: 10px;
+}
+h1 {
+  font-weight: normal;
+  text-align: center;
+  color: white;
+}
+h2 {
+  font-weight: normal;
+  text-align: center;
+  color: white;
+}
+h3 {
+  font-weight: normal;
+  text-decoration: none;
+  text-align: center;
+  color: white;
+}
+h4 {
+  font-weight: normal;
+  text-align: center;
+  color: white;
+}
+#botones {
+  border-radius: 10px;
+  align-items: center;
+}
+.item {
+  background-color: white;
+  border-radius: 10px;
+  margin-top: 0.5em;
+  margin-left: 0.5em;
+  margin-right: 0.5em; 
+  margin-bottom: 0.5em;
+}
+.item h3{
+  color: black;
+  margin-bottom: 0.5em;
+}
+.galeria2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.galeria2 img {
+  background-color: white;
+  padding: 1.5em;
+  border-radius: 10px;
+}
+.galeria .item:hover {
+  border-radius: 10px;
+  background-color: lightcoral;
+}
+.item h3:hover {
+  color: white;
+  background-color: lightcoral;
+}
+#menuprincipal li {flex-grow: 1;}
+#menuprincipal a {
+  display: block;
+  padding: 0.5em;
+  background-color: white;
+  text-align: center;
+  margin: 0.5em;
+  text-decoration: none;
+  color: black;
+  border-radius: 10px;
+}
+#menuprincipal a:hover {
+  background-color: lightcoral;
+  color: white;
+  border-radius: 10px;
+}
+#menuprincipal {
+  align-items: center;
+  border-radius: 10px;
+}
+#menuprincipal u1 {
+  
+  list-style-type: none;
+  padding: 0.5em;
+  display: flex;
+}
+#pie li {flex-grow: 1;
+width: auto;}
+#pie {
+  align-items:center;
+}
+#pie u2 {
+  list-style-type: none;
+  padding: 2em;
+  display: flex;
+  align-items: center;
+  align-content: center;
+}
+#pie a {
+  display: block;
+  background-color: white;
+  text-align: center;
+  margin: 0.5em;
+  text-decoration: none;
+  color: black;
+  width: auto;
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+  border-radius: 10px;
+}
+#pie a:hover {
+  background-color: lightcoral;
+  color: white;
+  border-radius: 10px;
+}
+img {
+  align-items: center;
+  margin-top: 0.5em;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  margin-bottom: 0.5em;
+  border-radius: 10px;
+}
+/* Estilos de la galería */
+.imagen {
+  cursor: pointer;
+}
+/* Estilos del modal */
+#modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+}
+#modal-content {
+  background-color: #fff;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+  position: relative;
+}
+.modal-img-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.modal-img {
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.modal-img.active {
+  border-color: lightcoral;
+}
+#main-img {
+  height: auto;
+  max-height: 400px;
+  margin-bottom: 10px;
+}
+.descripcion {
+  font-size: 14px;
+  color: #000000;
+  margin: 10px 0;
+}
+.cantidad {
+  margin: 10px 0;
+}
+.comprar-btn {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: rgb(0, 0, 0); /* Ícono de cierre blacno */
+}
+@media (min-width: 1080px) {
+  .item{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+  }
+  .galeria {
+    display: flex;
+    background-color: black;
+    text-align: center;
+    list-style-type: none;
+  }
+  #menuprincipal u1 {
+    flex-direction: row;
+  }
+  #menu-icon {
+    display: none;
+  }
+  #botones {
+    margin-left: 30%;
+    margin-right: 30%;
+  }
+  #pie u2 {
+    flex-direction: row;
+  }
+  h1 {
+    font-size: 2.5em;
+  }
+  h2 {
+    font-size: 2em;
+  }
+  h3 {
+    font-size: 1.5em;
+  }
+  .descripcion{
+    font-size: 1.5em;
+  }
+  h4 {
+    font-size: 1.5em;
+  }
+  a {
+    font-size: 1.5em;
+  }
+}
+@media (max-width: 1080px) {
+  #carrito{
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+  #menu-icon {
+    display: block;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    cursor: pointer;
+  }
+  #menu-icon img {
+      width: 40px;
+  }
+  #menuprincipal {
+      display: none;
+  }
+  #menuprincipal.active {
+      display: block;
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      background-color: black;
+      padding: 1em 0;
+  }
+  #menuprincipal u1 {
+      flex-direction: column;
+      align-items: center;
+  }
+  .item{
+    display: inline-block;
+  }
+  img {
+    width: 50%;
+    height: 50%;
+  }
+  iframe {
+    width: 75%;
+    height: 75%;
+  }
+  #pie u2 {
+    flex-direction: column;
+  }
+  h1 {
+    font-size: 3em;
+  }
+  h2 {
+    font-size: 2.5em;
+  }
+  h3 {
+    font-size: 2em;
+  }
+  .descripcion{
+    font-size: 2em;
+  }
+  h4 {
+    font-size: 1.75em;
+  }
+  a {
+    font-size: 2em;
+  }
+}
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+  h3 {
+    font-size: 1em;
+  }
+  .descripcion{
+    font-size: 1em;
+  }
+  h4 {
+    font-size: 0.75em;
+  }
+  a {
+    font-size: 1em;
+  }
+}
+
+.custom-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-player #youtube-player {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.player-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Espaciado entre los botones */
+}
+
+.player-controls .boton {
+  margin: 0; /* Elimina márgenes adicionales */
+  margin-top: 10px;
+  background-color: lightcoral;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+/* Estilo para centrar el modal */
+#login-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+/* Contenido del modal */
+.login-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Elementos del formulario */
+.login-content label {
+  margin: 10px 0 5px;
+  font-weight: bold;
+  text-align: left;
+  width: 100%;
+  color: black;
+}
+
+.login-content input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Botones */
+.login-content button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#login-button {
+  background-color: #28a745;
+  color: white;
+}
+
+#login-button:hover {
+  background-color: #218838;
+}
+
+.login-content button:nth-child(3) {
+  background-color: #dc3545;
+  color: white;
+}
+
+.login-content button:nth-child(3):hover {
+  background-color: #c82333;
+}
