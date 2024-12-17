@@ -8,7 +8,7 @@ const app = express();
 
 // Configurar base de datos MySQL
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || '127.0.0.1', // Dirección interna de Railway
+    host: process.env.MYSQLHOST || 'mysql.railway.internal', // Dirección interna de Railway
     user: process.env.MYSQLUSER || 'root',                  // Usuario
     password: process.env.MYSQLPASSWORD || 'TopSpeed2021',  // Contraseña
     database: process.env.MYSQLDATABASE || 'TopSpeed',      // Nombre de la base de datos
