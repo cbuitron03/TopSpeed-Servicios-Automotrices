@@ -8,11 +8,11 @@ const app = express();
 
 // Configurar base de datos MySQL
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST, // Dirección interna de Railway
-    user: process.env.MYSQLUSER,                  // Usuario
-    password: process.env.MYSQLPASSWORD,  // Contraseña
-    database: process.env.MYSQLDATABASE,      // Nombre de la base de datos
-    port: process.env.MYSQLPORT                  // Puerto
+    host: 'autorack.proxy.rlwy.net', // Dirección interna de Railway
+    user: 'TopSpeed',                  // Usuario
+    password: 'TopSpeed2021',  // Contraseña
+    database: 'railway',      // Nombre de la base de datos
+    port: 50900                  // Puerto
 });
 
 db.connect((err) => {
@@ -21,37 +21,6 @@ db.connect((err) => {
         return;
     }
     console.log('Conectado a MySQL');
-    // Creación de las tablas si no existen
-    const duenioTable = `
-        CREATE TABLE IF NOT EXISTS duenio (
-            id INT AUTO_INCREMENT PRIMARY KEY, 
-            cedula VARCHAR(255) NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL,
-            phone VARCHAR(255) NOT NULL,
-            address VARCHAR(255) NOT NULL,
-            dob DATE NOT NULL,
-            gender VARCHAR(50) NOT NULL,
-            password VARCHAR(255) NOT NULL
-        )
-    `;
-    const vehiculoTable = `
-        CREATE TABLE IF NOT EXISTS vehiculo (
-            id INT AUTO_INCREMENT PRIMARY KEY, 
-            placa VARCHAR(255) NOT NULL,
-            marca VARCHAR(255) NOT NULL,
-            modelo VARCHAR(255) NOT NULL,
-            color VARCHAR(255) NOT NULL,
-            anio VARCHAR(4) NOT NULL,
-            cedula VARCHAR(255) NOT NULL
-        )
-    `;
-    db.query(duenioTable, (err) => {
-        if (err) console.error('Error creating duenio table:', err.message);
-    });
-    db.query(vehiculoTable, (err) => {
-        if (err) console.error('Error creating vehiculo table:', err.message);
-    });
 });
 
 app.use(express.static('public'));
