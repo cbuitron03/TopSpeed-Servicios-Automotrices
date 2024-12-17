@@ -5,15 +5,14 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Configurar base de datos MySQL
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST,
-    user: process.env.MYSQLUSER,
-    password: process.env.MYSQLPASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    port: process.env.MYSQLPORT
+    host: process.env.MYSQLHOST || 'mysql.railway.internal', // Dirección interna de Railway
+    user: process.env.MYSQLUSER || 'root',                  // Usuario
+    password: process.env.MYSQLPASSWORD || 'TopSpeed2021',  // Contraseña
+    database: process.env.MYSQLDATABASE || 'TopSpeed',      // Nombre de la base de datos
+    port: process.env.MYSQLPORT || 3306                    // Puerto
 });
 
 db.connect((err) => {
@@ -100,8 +99,8 @@ app.post('/submit', (req, res) => {
 });
 
 // Servidor escuchando
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(8080, () => {
+    console.log('Servidor corriendo en http://localhost:8080');
 });
 
 // Ruta raíz
