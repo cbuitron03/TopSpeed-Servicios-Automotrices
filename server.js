@@ -8,11 +8,11 @@ const app = express();
 
 // Configurar base de datos MySQL
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || 'mysql.railway.internal', // Dirección interna de Railway
-    user: process.env.MYSQLUSER || 'root',                  // Usuario
-    password: process.env.MYSQLPASSWORD || 'TopSpeed2021',  // Contraseña
-    database: process.env.MYSQLDATABASE || 'TopSpeed',      // Nombre de la base de datos
-    port: process.env.MYSQLPORT || 3306                    // Puerto
+    host: process.env.MYSQLHOST, // Dirección interna de Railway
+    user: process.env.MYSQLUSER,                  // Usuario
+    password: process.env.MYSQLPASSWORD,  // Contraseña
+    database: process.env.MYSQLDATABASE,      // Nombre de la base de datos
+    port: process.env.MYSQLPORT                  // Puerto
 });
 
 db.connect((err) => {
