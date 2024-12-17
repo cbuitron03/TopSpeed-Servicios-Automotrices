@@ -2,7 +2,8 @@
   "dependencies": {
     "body-parser": "^1.20.3",
     "express": "^4.21.1",
-    "mysql2": "^3.11.5"
+    "mysql2": "^3.11.5",
+    "dotenv": "^10.x"
   },
   "name": "paginaweb",
   "version": "1.0.0",

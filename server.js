@@ -1,29 +1,26 @@
-const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql2');
 const path = require('path');
+const express = require('express');
+const mysql = require('mysql');
+require('dotenv').config();
+
 const app = express();
-const PORT = 3306;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.static('public'));
-app.use(bodyParser.json());
-
-// Configuración de la conexión con la base de datos MySQL
+// Configurar base de datos MySQL
 const db = mysql.createConnection({
-    host: 'localhost', // Cambiar según la configuración de tu servidor MySQL
-    user: 'root',      // Usuario de la base de datos
-    password: 'TopSpeed2021',      // Contraseña del usuario
-    database: 'TopSpeed' // Nombre de la base de datos
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
-// Conexión a la base de datos
 db.connect((err) => {
     if (err) {
-        console.error('Error connecting to MySQL:', err.message);
+        console.error('Error conectando a la base de datos:', err);
         return;
     }
-    console.log('Connected to the MySQL database.');
-
+    console.log('Conectado a MySQL');
     // Creación de las tablas si no existen
     const duenioTable = `
         CREATE TABLE IF NOT EXISTS duenio (
@@ -55,6 +52,20 @@ db.connect((err) => {
     db.query(vehiculoTable, (err) => {
         if (err) console.error('Error creating vehiculo table:', err.message);
     });
+});
+
+app.use(express.static('public'));
+app.use(bodyParser.json());
+
+// Conexión a la base de datos
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to MySQL:', err.message);
+        return;
+    }
+    console.log('Connected to the MySQL database.');
+
+    
 });
 
 // Endpoint para insertar datos
