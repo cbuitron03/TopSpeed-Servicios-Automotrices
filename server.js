@@ -47,7 +47,7 @@ app.post('/submit', (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const vehiculoSql = `
-        INSERT INTO vehiculo (placa, marca, modelo, color, anio, cedula) 
+        INSERT INTO vehiculo (placa, cedula, marca, modelo, color, anio) 
         VALUES (?, ?, ?, ?, ?, ?)
     `;
 
