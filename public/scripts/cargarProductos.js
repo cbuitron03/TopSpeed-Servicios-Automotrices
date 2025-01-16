@@ -1,5 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Realizar la solicitud para obtener los productos
+    fetch('./productos.json')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Verifica los datos en la consola
+        renderProductos(data.data); // Renderiza los productos en los divs
+    })
+    .catch(error => console.error('Error al cargar el archivo JSON:', error));
+
     fetch('/productos')
         .then(response => response.json())
         .then(data => {
