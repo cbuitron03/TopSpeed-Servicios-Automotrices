@@ -206,6 +206,7 @@ app.post('/procesar-pedido', (req, res) => {
 
                 // Obtener PRD_ID a partir del nombre del producto
                 const QUERYPRDID = 'SELECT PRD_ID FROM PRODUCTO WHERE PRD_NOMBRE = ?';
+                console.log('SQL Query PRD_ID:', QUERYPRDID, [prd_nombre]);
 
                 db.query(QUERYPRDID, [prd_nombre], (err, result) => {
                     if (err) {
@@ -213,6 +214,8 @@ app.post('/procesar-pedido', (req, res) => {
                         errorOccurred = true;
                         return res.status(500).send({ error: 'Error al obtener el ID del producto.' });
                     }
+
+                    console.log('Resultado de PRD_ID:', result);
 
                     if (result.length === 0) {
                         console.error('Producto no encontrado:', prd_nombre);
