@@ -7,7 +7,7 @@
     <link href="../CSS/style.css" rel="stylesheet">
     <script src="../scripts/script.js" defer></script>
     <script src="../scripts/carrito.js" defer></script>
-    <script src="../scripts/cargarProductos.js" defer></script> <!-- Agregar este script -->
+
 </head>
 <body>
     <header>
@@ -30,13 +30,19 @@
     <article>
         <h1>Servicios</h1>
         <h2>Accesorios Off-Road</h2>
-        <div class="galeria" id="accesorios"></div>  <!-- Se carga dinámicamente -->
-
-        <h2>Mantenimiento</h2>
-        <div class="galeria" id="mantenimiento"></div> <!-- Se carga dinámicamente -->
-
+        <div class="galeria" data-categoria="accesorios">
+            <!-- Los productos se cargarán aquí dinámicamente -->
+        </div>
+        
+        <h2>Mantenimiento</h2>   
+        <div class="galeria" data-categoria="mantenimiento">
+            <!-- Los productos se cargarán aquí dinámicamente -->
+        </div>
+        
         <h2>Detailing</h2>
-        <div class="galeria" id="detailing"></div>  <!-- Se carga dinámicamente -->
+        <div class="galeria" data-categoria="detailing">
+            <!-- Los productos se cargarán aquí dinámicamente -->
+        </div>
         
         <!-- Modal para mostrar las imágenes del producto -->
         <div id="modal">
@@ -90,6 +96,56 @@
             </nav>
         </div>
     </footer>
+    <script>
+        // Espera a que el contenido de la página esté cargado
+        document.addEventListener("DOMContentLoaded", function() {
+            // Función para cargar los productos desde el JSON
+            async function cargarProductos() {
+                try {
+                    // Obtiene los productos desde el archivo JSON
+                    const response = await fetch('./productos.json');
+                    const data = await response.json();
+                    
+                    // Los datos de los productos
+                    const productos = data.data;
+                    
+                    // Referencias a las secciones donde se deben agregar los productos
+                    const galeriaAccesorios = document.getElementById('accesorios');
+                    const galeriaMantenimiento = document.getElementById('mantenimiento');
+                    const galeriaDetailing = document.getElementById('detailing');
+                    
+                    // Limpia las galerías
+                    galeriaAccesorios.innerHTML = '';
+                    galeriaMantenimiento.innerHTML = '';
+                    galeriaDetailing.innerHTML = '';
+                    
+                    // Iterar sobre los productos y agregarlos a las galerías correspondientes
+                    productos.forEach(producto => {
+                        const itemHTML = `
+                            <div class="item" data-nombre="${producto[1]}" data-precio="${producto[2]}">
+                                <img class="imagen" src="${producto[5]}" width="${producto[6]}" height="${producto[7]}" 
+                                     onclick="abrirModal('${producto[1]}', '${producto[9]}', ${JSON.stringify(producto[10])})" alt="${producto[8]}">
+                                <div class="descripcion">${producto[4]}</div>
+                            </div>
+                        `;
+                        
+                        // Clasificar los productos según su tipo
+                        if (producto[1].includes('Cabrestante') || producto[1].includes('Halógenos') || producto[1].includes('Suspensión')) {
+                            galeriaAccesorios.innerHTML += itemHTML;
+                        } else if (producto[1].includes('Cita')) {
+                            galeriaMantenimiento.innerHTML += itemHTML;
+                        } else if (producto[1].includes('Detailing')) {
+                            galeriaDetailing.innerHTML += itemHTML;
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error al cargar los productos:', error);
+                }
+            }
 
+            // Llamar a la función para cargar los productos
+            cargarProductos();
+        });
+    </script>
 </body>
 </html>

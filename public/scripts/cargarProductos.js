@@ -1,54 +1,79 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Realizar la solicitud para obtener los productos
-    fetch('./productos.json')
-    .then(response => response.json())
-    .then(data => {
-        console.log(data); // Verifica los datos en la consola
-        renderProductos(data.data); // Renderiza los productos en los divs
-    })
-    .catch(error => console.error('Error al cargar el archivo JSON:', error));
-
-    fetch('/productos')
+// Función para cargar los productos desde el archivo JSON
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('../data/productos.json')  // Ruta del archivo JSON
         .then(response => response.json())
-        .then(data => {
-            const productos = data.data; // Array con los productos
-            const galeria = document.querySelector('.galeria'); // Elemento contenedor de la galería
-
-            // Limpiar la galería antes de cargar los nuevos productos
-            galeria.innerHTML = '';
-
-            // Iterar sobre cada producto y agregarlo al DOM
-            productos.forEach(producto => {
-                const item = document.createElement('div');
-                item.classList.add('item');
-                item.setAttribute('data-nombre', producto[4]);  // Nombre del producto
-                item.setAttribute('data-precio', producto[2]); // Precio del producto
-
-                // Crear la imagen
-                const img = document.createElement('img');
-                img.classList.add('imagen');
-                img.src = producto[5];  // Imagen principal
-                img.width = 327; // Ancho de la imagen (ajustar si es necesario)
-                img.height = 410; // Alto de la imagen (ajustar si es necesario)
-                img.alt = producto[4]; // Descripción alternativa para la imagen
-                img.onclick = function() {
-                    abrirModal(producto[4], producto[9], producto.slice(10, 13));  // Abrir modal con imágenes adicionales
-                };
-
-                // Crear la descripción
-                const descripcion = document.createElement('div');
-                descripcion.classList.add('descripcion');
-                descripcion.textContent = `${producto[4]} - $${producto[2].toFixed(2)}`;
-
-                // Agregar la imagen y la descripción al item
-                item.appendChild(img);
-                item.appendChild(descripcion);
-
-                // Agregar el item a la galería
-                galeria.appendChild(item);
-            });
-        })
-        .catch(error => {
-            console.error('Error al cargar los productos:', error);
-        });
+        .then(data => cargarGaleria(data.data))
+        .catch(error => console.error('Error cargando los datos:', error));
 });
+
+// Función para cargar la galería con los productos
+function cargarGaleria(productos) {
+    const categorias = {
+        "Accesorios Off-Road": document.querySelector('.galeria[data-categoria="accesorios"]'),
+        "Mantenimiento": document.querySelector('.galeria[data-categoria="mantenimiento"]'),
+        "Detailing": document.querySelector('.galeria[data-categoria="detailing"]')
+    };
+
+    productos.forEach(producto => {
+        const [
+            id, nombre, precio, stock, descripcion, imgMiniatura, ancho, alto, nombreModal, descripcionModal, imagenesModal
+        ] = producto;
+
+        // Crear el contenedor del producto
+        const item = document.createElement('div');
+        item.classList.add('item');
+        item.setAttribute('data-nombre', nombre);
+        item.setAttribute('data-precio', precio);
+
+        // Crear la imagen del producto
+        const img = document.createElement('img');
+        img.classList.add('imagen');
+        img.src = imgMiniatura;
+        img.width = ancho;
+        img.height = alto;
+        img.alt = nombre;
+        img.onclick = () => abrirModal(nombreModal, descripcionModal, imagenesModal);
+
+        // Crear la descripción del producto
+        const divDescripcion = document.createElement('div');
+        divDescripcion.classList.add('descripcion');
+        divDescripcion.textContent = `${nombre} - $${precio}`;
+
+        // Añadir la imagen y descripción al item
+        item.appendChild(img);
+        item.appendChild(divDescripcion);
+
+        // Añadir el item a la categoría correspondiente
+        if (categorias[nombre]) {
+            categorias[nombre].appendChild(item);
+        }
+    });
+}
+
+// Función para abrir el modal con el producto
+function abrirModal(nombre, descripcion, imagenes) {
+    const modal = document.getElementById('modal');
+    const modalImgContainer = document.getElementById('modal-img-container');
+    const mainImg = document.getElementById('main-img');
+    const modalDesc = document.getElementById('modal-desc');
+
+    // Limpiar el contenedor de imágenes y agregar nuevas
+    modalImgContainer.innerHTML = '';
+    imagenes.forEach(imagen => {
+        const img = document.createElement('img');
+        img.src = imagen;
+        img.alt = nombre;
+        modalImgContainer.appendChild(img);
+    });
+
+    mainImg.src = imagenes[0];
+    modalDesc.textContent = descripcion;
+
+    // Mostrar el modal
+    modal.style.display = 'block';
+}
+
+// Función para cerrar el modal
+function cerrarModal() {
+    document.getElementById('modal').style.display = 'none';
+}
