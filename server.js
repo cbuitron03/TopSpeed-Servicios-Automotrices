@@ -44,11 +44,11 @@ app.post('/submit', (req, res) => {
 
     // Insertar datos en la tabla `duenio`
     const duenioSql = `
-        INSERT INTO duenio (cedula, name, email, phone, address, dob, gender, password) 
+        INSERT INTO DUENIO (cedula, name, email, phone, address, dob, gender, password) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const vehiculoSql = `
-        INSERT INTO vehiculo (placa, cedula, marca, modelo, color, anio) 
+        INSERT INTO VEHICULO (placa, cedula, marca, modelo, color, anio) 
         VALUES (?, ?, ?, ?, ?, ?)
     `;
 
