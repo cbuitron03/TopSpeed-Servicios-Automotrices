@@ -12,7 +12,8 @@ function closeLogin() {
 document.getElementById("login-button").addEventListener("click", function () {
     const user1 = document.getElementById("username");
     const clave = document.getElementById("password1");;
-
+    console.log(user1);
+    console.log(clave);
     // Verificar que los campos no estén vacíos
     if (!user1 || !clave) {
         alert("Por favor, ingresa tu usuario y contraseña.");
