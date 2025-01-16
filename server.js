@@ -164,42 +164,49 @@ app.post('/login', (req, res) => {
 });
 
 
-app.post('/procesar-pedido', async (req, res) => {
+app.post('/procesar-pedido', (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
 
-    try {
-        // 1. Insertar en la tabla PEDIDO
-        const [pedidoResult] = await db.query(
-            `INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
-             VALUES (?, ?, ?, ?)`,
-            [cedula, total, fechaPedido, fechaEntrega]
-        );
+    // Insertar en la tabla PEDIDO
+    db.query(
+        `INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
+         VALUES (?, ?, ?, ?)`,
+        [cedula, total, fechaPedido, fechaEntrega]
+    )
+        .then(([pedidoResult]) => {
+            const pedNum = pedidoResult.insertId; // ID del pedido recién creado
 
-        const pedNum = pedidoResult.insertId; // Obtener el número de pedido generado
+            // Construir las promesas para los productos
+            const productoPromises = productos.map(producto => {
+                const { prd_id, cantidad, precio } = producto;
 
-        // 2. Insertar en la tabla PEDIDO_PRODUCTO y actualizar inventario
-        for (const producto of productos) {
-            const { prd_id, cantidad, precio } = producto;
+                // Insertar en PEDIDO_PRODUCTO
+                const insertarProducto = db.query(
+                    `INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                     VALUES (?, ?, ?, ?)`,
+                    [prd_id, pedNum, cantidad, precio]
+                );
 
-            // Insertar en PEDIDO_PRODUCTO
-            await db.query(
-                `INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                 VALUES (?, ?, ?, ?)`,
-                [prd_id, pedNum, cantidad, precio]
-            );
+                // Actualizar inventario
+                const actualizarInventario = db.query(
+                    `UPDATE PRODUCTO 
+                     SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
+                     WHERE PRD_ID = ?`,
+                    [cantidad, prd_id]
+                );
 
-            // Actualizar el inventario
-            await db.query(
-                `UPDATE PRODUCTO 
-                 SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
-                 WHERE PRD_ID = ?`,
-                [cantidad, prd_id]
-            );
-        }
+                // Devolver ambas promesas como un Promise.all
+                return Promise.all([insertarProducto, actualizarInventario]);
+            });
 
-        res.status(200).send({ message: 'Pedido procesado exitosamente.' });
-    } catch (error) {
-        console.error('Error al procesar el pedido:', error);
-        res.status(500).send({ error: 'Error al procesar el pedido.' });
-    }
+            // Esperar a que todas las promesas se resuelvan
+            return Promise.all(productoPromises);
+        })
+        .then(() => {
+            res.status(200).send({ message: 'Pedido procesado exitosamente.' });
+        })
+        .catch(error => {
+            console.error('Error al procesar el pedido:', error);
+            res.status(500).send({ error: 'Error al procesar el pedido.' });
+        });
 });
