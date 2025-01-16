@@ -11,7 +11,7 @@ function closeLogin() {
 // Manejar el inicio de sesión
 document.getElementById("login-button").addEventListener("click", function () {
     const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const password = document.getElementById("password1").value.trim();
 
     // Verificar que los campos no estén vacíos
     if (!username || !password) {
