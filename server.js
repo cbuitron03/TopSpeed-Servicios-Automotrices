@@ -166,42 +166,63 @@ app.post('/login', (req, res) => {
     });
 });
 
-app.post('/procesar-pedido', async (req, res) => {
+app.post('/procesar-pedido', (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
 
-    try {
-        // 1. Insertar en la tabla PEDIDO
-        const [pedidoResult] = await db.query(
-            `INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
-             VALUES (?, ?, ?, ?)`,
-            [cedula, total, fechaPedido, fechaEntrega]
-        );
+    // Insertar en la tabla PEDIDO
+    const pedidoSql = `
+        INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
+        VALUES (?, ?, ?, ?)
+    `;
 
-        const pedNum = pedidoResult.insertId; // Obtener el número de pedido generado
+    db.query(pedidoSql, [cedula, total, fechaPedido, fechaEntrega], (err, result) => {
+        if (err) {
+            console.error('Error inserting into PEDIDO table:', err.message);
+            return res.status(500).send({ error: 'Error al procesar el pedido.' });
+        }
 
-        // 2. Insertar en la tabla PEDIDO_PRODUCTO y actualizar inventario
-        for (const producto of productos) {
+        const pedNum = result.insertId; // Número de pedido generado
+
+        // Procesar cada producto en la lista
+        let completed = 0; // Contador para operaciones completadas
+        const totalProductos = productos.length;
+
+        productos.forEach((producto) => {
             const { prd_id, cantidad, precio } = producto;
 
             // Insertar en PEDIDO_PRODUCTO
-            await db.query(
-                `INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                 VALUES (?, ?, ?, ?)`,
-                [prd_id, pedNum, cantidad, precio]
-            );
+            const pedidoProductoSql = `
+                INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                VALUES (?, ?, ?, ?)
+            `;
 
-            // Actualizar el inventario
-            await db.query(
-                `UPDATE PRODUCTO 
-                 SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
-                 WHERE PRD_ID = ?`,
-                [cantidad, prd_id]
-            );
-        }
+            db.query(pedidoProductoSql, [prd_id, pedNum, cantidad, precio], (err) => {
+                if (err) {
+                    console.error('Error inserting into PEDIDO_PRODUCTO table:', err.message);
+                    return res.status(500).send({ error: 'Error al procesar el pedido.' });
+                }
 
-        res.status(200).send({ message: 'Pedido procesado exitosamente.' });
-    } catch (error) {
-        console.error('Error al procesar el pedido:', error);
-        res.status(500).send({ error: 'Error al procesar el pedido.' });
-    }
+                // Actualizar el inventario
+                const actualizarInventarioSql = `
+                    UPDATE PRODUCTO 
+                    SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
+                    WHERE PRD_ID = ?
+                `;
+
+                db.query(actualizarInventarioSql, [cantidad, prd_id], (err) => {
+                    if (err) {
+                        console.error('Error updating PRODUCTO table:', err.message);
+                        return res.status(500).send({ error: 'Error al procesar el pedido.' });
+                    }
+
+                    // Incrementar contador y verificar si todas las operaciones terminaron
+                    completed++;
+                    if (completed === totalProductos) {
+                        res.status(200).send({ message: 'Pedido procesado exitosamente.' });
+                    }
+                });
+            });
+        });
+    });
 });
+
