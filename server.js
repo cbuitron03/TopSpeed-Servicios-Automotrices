@@ -1,4 +1,5 @@
 const bodyParser = require('body-parser');
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const mysql = require('mysql2');
@@ -92,7 +93,7 @@ app.get('/vehiculo', (req, res) => {
 
 // Endpoint para obtener los datos y exportarlos
 app.get('/productos', (req, res) => {
-    const query = 'SELECT * FROM producto';
+    const query = 'SELECT * FROM PRODUCTO';
 
     db.query(query, (err, results) => {
         if (err) {
@@ -106,21 +107,19 @@ app.get('/productos', (req, res) => {
             const imagenesAdicionales = producto.imagen_adicionales ? producto.imagen_adicionales.split(',') : [null, null, null];
 
             return [
-                index + 1,
-                producto.descripcion_corta,
-                producto.precio,
-                producto.stock || 500,
-                producto.nombre,
-                producto.imagen_principal,
-                producto.ancho || 0,
-                producto.alto || 0,
-                producto.modal_nombre,
-                producto.modal_descripcion,
-                imagenesAdicionales[0], // Primera imagen adicional
-                imagenesAdicionales[1], // Segunda imagen adicional
-                imagenesAdicionales[2], // Tercera imagen adicional
-                producto.categoria,
-            ];
+                producto.PRD_ID, // ID del producto
+                producto.PRD_NOMBRE || '', // Nombre del producto
+                producto.PRD_PRECIO || 0.00, // Precio del producto
+                producto.PRD_EXISTENCIA || 0, // Stock del producto
+                producto.PRD_DESC || '', // Descripción del producto
+                producto.PRD_I_P || '', // Imagen principal
+                producto.PRD_ANC || 0, // Ancho de la imagen
+                producto.PRD_ALT || 0, // Alto de la imagen
+                producto.PRD_T_M || '', // Título del producto
+                producto.PRD_D_M || '', // Descripción adicional
+                producto.PRD_I_S ? producto.PRD_I_S.split(',') : [], // Imágenes adicionales
+                producto.PRD_ALT1 || '' // Otra descripción o título
+              ];
         });
 
         // Guardar los datos transformados en un archivo JSON
