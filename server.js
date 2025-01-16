@@ -176,6 +176,7 @@ app.post('/procesar-pedido', (req, res) => {
 
     // Obtener el valor máximo actual de PED_NUM para calcular el siguiente
     const getMaxPedNumSql = `SELECT MAX(PED_NUM) AS maxPedNum FROM PEDIDO`;
+    console.log('Query a ejecutar:', getMaxPedNumSql); // Imprime el query
 
     db.query(getMaxPedNumSql, (err, result) => {
         if (err) {
@@ -192,6 +193,7 @@ app.post('/procesar-pedido', (req, res) => {
             INSERT INTO PEDIDO (PED_NUM, CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
             VALUES (?, ?, ?, ?, ?)
         `;
+        console.log('Query a ejecutar:', pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega]); // Imprime el query con valores
 
         db.query(pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega], (err) => {
             if (err) {
@@ -216,6 +218,7 @@ app.post('/procesar-pedido', (req, res) => {
                     INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
                     VALUES (?, ?, ?, ?)
                 `;
+                console.log('Query a ejecutar:', pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)]); // Imprime el query con valores
 
                 db.query(pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)], (err) => {
                     if (err) {
@@ -229,6 +232,7 @@ app.post('/procesar-pedido', (req, res) => {
                         SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
                         WHERE PRD_ID = ?
                     `;
+                    console.log('Query a ejecutar:', actualizarInventarioSql, [cantidad, prd_id]); // Imprime el query con valores
 
                     db.query(actualizarInventarioSql, [cantidad, prd_id], (err) => {
                         if (err) {
