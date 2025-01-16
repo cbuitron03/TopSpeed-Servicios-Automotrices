@@ -188,13 +188,14 @@ app.post('/procesar-pedido', (req, res) => {
         const maxPedNum = result[0].maxPedNum || 0;
         const newPedNum = maxPedNum + 1;
 
-        // Insertar en la tabla PEDIDO
+        console.log('Cedula:', cedula);  // Verifica el valor de cedula
+
         const pedidoSql = `
             INSERT INTO PEDIDO (PED_NUM, CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
             VALUES (?, ?, ?, ?, ?)
         `;
-        console.log('Query a ejecutar:', pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega]); // Imprime el query con valores
-
+        
+        console.log('Query a ejecutar:', pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega]);        
         db.query(pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega], (err) => {
             if (err) {
                 console.error('Error inserting into PEDIDO table:', err.message);
