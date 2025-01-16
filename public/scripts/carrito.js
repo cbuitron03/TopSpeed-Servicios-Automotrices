@@ -10,8 +10,8 @@ function closeLogin() {
 
 // Manejar el inicio de sesión
 document.getElementById("login-button").addEventListener("click", function () {
-    const user1 = '1000732592';
-    const clave = 'pass3822';
+    const user1 = document.getElementById("username");
+    const clave = document.getElementById("password1");;
 
     // Verificar que los campos no estén vacíos
     if (!user1 || !clave) {
@@ -237,7 +237,7 @@ document.getElementById("checkout-button").addEventListener("click", function ()
         }
 
         // Obtener la cédula del usuario logeado (en este caso almacenada como user1)
-        const cedula = '1000732592'; // Cambia esto según tu implementación
+        const cedula = document.getElementById("username"); // Cambia esto según tu implementación
 
         // Preparar los datos del pedido
         const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
