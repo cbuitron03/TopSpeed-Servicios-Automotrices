@@ -166,89 +166,67 @@ app.post('/login', (req, res) => {
     });
 });
 
+// Endpoint para procesar el pedido
 app.post('/procesar-pedido', (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
-
-    // Validar datos básicos antes de procesar
+  
     if (!cedula || !total || !fechaPedido || !fechaEntrega || !productos || productos.length === 0) {
-        return res.status(400).send({ error: 'Faltan datos requeridos para procesar el pedido.' });
+      return res.status(400).send({ error: 'Datos incompletos.' });
     }
-
-    // Obtener el valor máximo actual de PED_NUM para calcular el siguiente
-    const getMaxPedNumSql = `SELECT MAX(PED_NUM) AS maxPedNum FROM PEDIDO`;
-
-    db.query(getMaxPedNumSql, (err, result) => {
-        if (err) {
-            console.error('Error al obtener el valor máximo de PED_NUM:', err.message);
-            return res.status(500).send({ error: 'Error al procesar el pedido.' });
+  
+    // Insertar el pedido en la tabla PEDIDO
+    const pedidoSql = `
+      INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
+      VALUES (?, ?, ?, ?)
+    `;
+  
+    db.query(pedidoSql, [cedula, parseFloat(total), fechaPedido, fechaEntrega], (err, result) => {
+      if (err) {
+        console.error('Error inserting into PEDIDO table:', err.message);
+        return res.status(500).send({ error: 'Error al procesar el pedido.' });
+      }
+  
+      // El valor de PED_NUM será autoincrementado y disponible en result.insertId
+      const newPedNum = result.insertId; // Obtener el valor autoincrementado
+  
+      // Recorrer los productos y procesarlos
+      productos.forEach((producto) => {
+        const { prd_id, cantidad, precio } = producto;
+  
+        if (!prd_id || !cantidad || parseFloat(precio) <= 0) {
+          console.error('Producto con datos faltantes o precio inválido:', producto);
+          return res.status(400).send({ error: 'Datos incompletos o precio inválido en la lista de productos.' });
         }
-
-        // Calcular el nuevo PED_NUM
-        const maxPedNum = result[0].maxPedNum || 0;
-        const newPedNum = maxPedNum + 1;
-
-        // Insertar en la tabla PEDIDO
-        const pedidoSql = `
-            INSERT INTO PEDIDO (PED_NUM, CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
-            VALUES (?, ?, ?, ?, ?)
+  
+        // Insertar el producto en la tabla PEDIDO_PRODUCTO
+        const pedidoProductoSql = `
+          INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+          VALUES (?, ?, ?, ?)
         `;
-
-        db.query(pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega], (err) => {
+  
+        db.query(pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)], (err) => {
+          if (err) {
+            console.error('Error inserting into PEDIDO_PRODUCTO table:', err.message);
+            return res.status(500).send({ error: 'Error al procesar el pedido.' });
+          }
+  
+          // Actualizar el inventario
+          const actualizarInventarioSql = `
+            UPDATE PRODUCTO 
+            SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
+            WHERE PRD_ID = ?
+          `;
+  
+          db.query(actualizarInventarioSql, [cantidad, prd_id], (err) => {
             if (err) {
-                console.error('Error inserting into PEDIDO table:', err.message);
-                return res.status(500).send({ error: 'Error al procesar el pedido.' });
+              console.error('Error updating PRODUCTO table:', err.message);
+              return res.status(500).send({ error: 'Error al procesar el pedido.' });
             }
-
-            // Procesar cada producto en la lista
-            let completed = 0; // Contador de operaciones completadas
-            const totalProductos = productos.length;
-            let errorOccurred = false; // Flag para controlar errores
-
-            productos.forEach((producto) => {
-                const { prd_id, cantidad, precio } = producto;
-
-                // Validar que el producto tenga precio mayor a cero
-                if (!prd_id || !cantidad || parseFloat(precio) <= 0) {
-                    console.error('Producto con datos faltantes o precio inválido:', producto);
-                    errorOccurred = true; // Establecer el error
-                    return res.status(400).send({ error: 'Datos incompletos o precio inválido en la lista de productos.' });
-                }
-
-                // Insertar en PEDIDO_PRODUCTO
-                const pedidoProductoSql = `
-                    INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                    VALUES (?, ?, ?, ?)
-                `;
-
-                db.query(pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)], (err) => {
-                    if (err) {
-                        console.error('Error inserting into PEDIDO_PRODUCTO table:', err.message);
-                        errorOccurred = true;
-                        return res.status(500).send({ error: 'Error al procesar el pedido.' });
-                    }
-
-                    // Actualizar el inventario
-                    const actualizarInventarioSql = `
-                        UPDATE PRODUCTO 
-                        SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
-                        WHERE PRD_ID = ?
-                    `;
-
-                    db.query(actualizarInventarioSql, [cantidad, prd_id], (err) => {
-                        if (err) {
-                            console.error('Error updating PRODUCTO table:', err.message);
-                            errorOccurred = true;
-                            return res.status(500).send({ error: 'Error al procesar el pedido.' });
-                        }
-
-                        // Incrementar contador y verificar si todas las operaciones terminaron
-                        completed++;
-                        if (completed === totalProductos && !errorOccurred) {
-                            res.status(200).send({ message: 'Pedido procesado exitosamente.' });
-                        }
-                    });
-                });
-            });
+  
+            // Responder después de procesar todos los productos
+            res.status(200).send({ message: 'Pedido procesado exitosamente.' });
+          });
         });
+      });
     });
-});
+  });
