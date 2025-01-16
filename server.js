@@ -123,7 +123,7 @@ app.get('/productos', (req, res) => {
         });
 
         // Guardar los datos transformados en un archivo JSON
-        const jsonFilePath = './data/productos.json';
+        const jsonFilePath = '../productos.json';
         fs.writeFileSync(jsonFilePath, JSON.stringify(transformedData, null, 2));
 
         // Enviar respuesta al cliente
