@@ -1,0 +1,169 @@
+[
+  [
+    "1",
+    "Cabrestante",
+    "900.00",
+    "500",
+    "Cabrestantes - $900.00",
+    "../images/servicios/wincha-min.png",
+    327,
+    410,
+    "Cabrestante",
+    "Warn Zeon 15000LB $900.00",
+    [
+      "../images/servicios/wincha.png",
+      "../images/servicios/wincha2.png"
+    ],
+    "Cabrestantes"
+  ],
+  [
+    "10",
+    "Cita Detailing de Motor",
+    "0.00",
+    "500",
+    "Cita Detailing de Motor",
+    "../images/servicios/detailing3-min.png",
+    411,
+    308,
+    "Cita Detailing de Motor",
+    "Limpieza y Detallado",
+    [
+      "../images/servicios/detailing3.png"
+    ],
+    "Cita Detailing de Motor"
+  ],
+  [
+    "2",
+    "Halógenos",
+    "675.00",
+    "500",
+    "Iluminación - $675.00",
+    "../images/servicios/halogeno-min.png",
+    327,
+    410,
+    "Halógenos",
+    "Par Dobinsons LED 8inch $675.00",
+    [
+      "../images/servicios/halogeno.png",
+      "../images/servicios/halogeno2.png"
+    ],
+    "Halógenos"
+  ],
+  [
+    "3",
+    "Suspensión Fox",
+    "2300.00",
+    "500",
+    "Suspensiones y Lift Kits - $2300.00",
+    "../images/servicios/suspen-min.png",
+    327,
+    410,
+    "Suspensión Fox",
+    "Fox Performance Coilovers Kit $2300.00",
+    [
+      "../images/servicios/suspen.png",
+      "../images/servicios/suspen2.png",
+      "../images/servicios/suspen3.png"
+    ],
+    "Suspensión Fox"
+  ],
+  [
+    "4",
+    "Cita ABC de Frenos",
+    "0.00",
+    "500",
+    "Cita ABC de Frenos",
+    "../images/servicios/abcfrenos-min.png",
+    327,
+    409,
+    "Cita ABC de Frenos",
+    "Cambio, Limpieza y Mantenimiento",
+    [
+      "../images/servicios/abcfrenos.png",
+      "../images/servicios/abcfrenos2.png"
+    ],
+    "Cita ABC de Frenos"
+  ],
+  [
+    "5",
+    "Cita Enllantaje",
+    "0.00",
+    "500",
+    "Cita Enllantaje",
+    "../images/servicios/enllantaje-min.png",
+    328,
+    409,
+    "Cita Enllantaje",
+    "Enllantaje Especializado",
+    [
+      "../images/servicios/enllantaje.png",
+      "../images/servicios/enllantaje2.png"
+    ],
+    "Cita Enllantaje"
+  ],
+  [
+    "6",
+    "Cita Alineación",
+    "0.00",
+    "500",
+    "Cita Alineación",
+    "../images/servicios/alineacion-min.png",
+    328,
+    412,
+    "Cita Alineación",
+    "Alineación Computarizda",
+    [
+      "../images/servicios/alineacion.png",
+      "../images/servicios/alineacion2.png"
+    ],
+    "Cita Alineación"
+  ],
+  [
+    "7",
+    "Cita Balanceo",
+    "0.00",
+    "500",
+    "Cita Balanceo",
+    "../images/servicios/balanceo-min.png",
+    329,
+    409,
+    "Cita Balanceo",
+    "Balanceo Electrónico",
+    [
+      "../images/servicios/balanceo.png"
+    ],
+    "Cita Balanceo"
+  ],
+  [
+    "8",
+    "Cita Detailing Exterior",
+    "0.00",
+    "500",
+    "Cita Detailing Exterior",
+    "../images/servicios/detailing1-min.png",
+    411,
+    308,
+    "Cita Detailing Exterior",
+    "Lavado, Encerado, Pulido, Recubrimiento Cerámico",
+    [
+      "../images/servicios/detailing1.png"
+    ],
+    "Cita Detailing Exterior"
+  ],
+  [
+    "9",
+    "Cita Detailing Interior",
+    "0.00",
+    "500",
+    "Cita Detailing Interior",
+    "../images/servicios/detailing2-min.png",
+    411,
+    308,
+    "Cita Detailing Interior",
+    "Detailing Interior Completo",
+    [
+      "../images/servicios/detailing2.png"
+    ],
+    "Cita Detailing Interior"
+  ]
+]
