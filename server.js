@@ -176,7 +176,6 @@ app.post('/procesar-pedido', (req, res) => {
 
     // Obtener el valor máximo actual de PED_NUM para calcular el siguiente
     const getMaxPedNumSql = `SELECT MAX(PED_NUM) AS maxPedNum FROM PEDIDO`;
-    console.log('Query a ejecutar:', getMaxPedNumSql); // Imprime el query
 
     db.query(getMaxPedNumSql, (err, result) => {
         if (err) {
@@ -188,14 +187,12 @@ app.post('/procesar-pedido', (req, res) => {
         const maxPedNum = result[0].maxPedNum || 0;
         const newPedNum = maxPedNum + 1;
 
-        console.log('Cedula:', cedula);  // Verifica el valor de cedula
-
+        // Insertar en la tabla PEDIDO
         const pedidoSql = `
             INSERT INTO PEDIDO (PED_NUM, CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
             VALUES (?, ?, ?, ?, ?)
         `;
-        
-        console.log('Query a ejecutar:', pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega]);        
+
         db.query(pedidoSql, [newPedNum, cedula, parseFloat(total), fechaPedido, fechaEntrega], (err) => {
             if (err) {
                 console.error('Error inserting into PEDIDO table:', err.message);
@@ -205,12 +202,14 @@ app.post('/procesar-pedido', (req, res) => {
             // Procesar cada producto en la lista
             let completed = 0; // Contador de operaciones completadas
             const totalProductos = productos.length;
+            let errorOccurred = false; // Flag para controlar errores
 
             productos.forEach((producto) => {
                 const { prd_id, cantidad, precio } = producto;
 
                 if (!prd_id || !cantidad || !precio) {
                     console.error('Producto con datos faltantes:', producto);
+                    errorOccurred = true; // Establecer el error
                     return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
                 }
 
@@ -219,11 +218,11 @@ app.post('/procesar-pedido', (req, res) => {
                     INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
                     VALUES (?, ?, ?, ?)
                 `;
-                console.log('Query a ejecutar:', pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)]); // Imprime el query con valores
 
                 db.query(pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)], (err) => {
                     if (err) {
                         console.error('Error inserting into PEDIDO_PRODUCTO table:', err.message);
+                        errorOccurred = true;
                         return res.status(500).send({ error: 'Error al procesar el pedido.' });
                     }
 
@@ -233,17 +232,17 @@ app.post('/procesar-pedido', (req, res) => {
                         SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
                         WHERE PRD_ID = ?
                     `;
-                    console.log('Query a ejecutar:', actualizarInventarioSql, [cantidad, prd_id]); // Imprime el query con valores
 
                     db.query(actualizarInventarioSql, [cantidad, prd_id], (err) => {
                         if (err) {
                             console.error('Error updating PRODUCTO table:', err.message);
+                            errorOccurred = true;
                             return res.status(500).send({ error: 'Error al procesar el pedido.' });
                         }
 
                         // Incrementar contador y verificar si todas las operaciones terminaron
                         completed++;
-                        if (completed === totalProductos) {
+                        if (completed === totalProductos && !errorOccurred) {
                             res.status(200).send({ message: 'Pedido procesado exitosamente.' });
                         }
                     });
