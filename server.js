@@ -2,19 +2,19 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const mysql = require('mysql2');
 require('dotenv').config();
 
 const app = express();
-const mysql = require('mysql2/promise'); // Cambiar a la versión con soporte de promesas
 
-const db = mysql.createPool({
+// Configurar base de datos MySQL
+const db = mysql.createConnection({
     host: 'autorack.proxy.rlwy.net', // Dirección interna de Railway
-    user: 'TopSpeed',               // Usuario
-    password: 'TopSpeed2021',       // Contraseña
-    database: 'railway',            // Nombre de la base de datos
-    port: 50900                     // Puerto
+    user: 'TopSpeed',                  // Usuario
+    password: 'TopSpeed2021',  // Contraseña
+    database: 'railway',      // Nombre de la base de datos
+    port: 50900                  // Puerto
 });
-
 
 db.connect((err) => {
     if (err) {
@@ -136,8 +136,9 @@ app.get('/productos', (req, res) => {
     });
 });
 
+// Ruta para inicio de sesión
 app.post('/login', (req, res) => {
-    const { cedula, contrasena } = req.body;
+    const { cedula , contrasena }= req.body;
 
     // Verificar si la cédula existe en la tabla
     const queryCedula = 'SELECT CONTRASENA FROM DUENIO WHERE CEDULA = ?';
@@ -147,15 +148,17 @@ app.post('/login', (req, res) => {
             return res.status(500).send('Error interno del servidor');
         }
 
-        console.log("Resultados de la consulta:", results);
+        console.log(results); // Para depuración
 
         if (results.length === 0) {
+            // La cédula no existe
             return res.status(401).send('Usuario no encontrado');
         }
 
-        const contrasenaAlmacenada = results[0].CONTRASENA.trim();
+        const contrasenaAlmacenada = results[0].CONTRASENA; // Mayúsculas para el campo
 
-        if (contrasenaAlmacenada === contrasena) {
+        // Comparar contraseñas
+        if (contrasenaAlmacenada.trim() === contrasena) { // Usar trim() para evitar problemas de espacios
             return res.status(200).send('Inicio de sesión exitoso');
         } else {
             return res.status(401).send('Credenciales incorrectas');
@@ -163,22 +166,21 @@ app.post('/login', (req, res) => {
     });
 });
 
-
 app.post('/procesar-pedido', async (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
 
     try {
-        // Insertar en la tabla PEDIDO
+        // 1. Insertar en la tabla PEDIDO
         const [pedidoResult] = await db.query(
             `INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
              VALUES (?, ?, ?, ?)`,
             [cedula, total, fechaPedido, fechaEntrega]
         );
 
-        const pedNum = pedidoResult.insertId; // ID del pedido recién creado
+        const pedNum = pedidoResult.insertId; // Obtener el número de pedido generado
 
-        // Procesar los productos
-        const productoPromises = productos.map(async producto => {
+        // 2. Insertar en la tabla PEDIDO_PRODUCTO y actualizar inventario
+        for (const producto of productos) {
             const { prd_id, cantidad, precio } = producto;
 
             // Insertar en PEDIDO_PRODUCTO
@@ -188,17 +190,14 @@ app.post('/procesar-pedido', async (req, res) => {
                 [prd_id, pedNum, cantidad, precio]
             );
 
-            // Actualizar inventario
+            // Actualizar el inventario
             await db.query(
                 `UPDATE PRODUCTO 
                  SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
                  WHERE PRD_ID = ?`,
                 [cantidad, prd_id]
             );
-        });
-
-        // Esperar que todas las promesas se completen
-        await Promise.all(productoPromises);
+        }
 
         res.status(200).send({ message: 'Pedido procesado exitosamente.' });
     } catch (error) {
