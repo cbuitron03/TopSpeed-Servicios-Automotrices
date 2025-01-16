@@ -250,7 +250,7 @@ app.post('/procesar-pedido', (req, res) => {
                     else{
                         // Query para insertar en PEDIDO_PRODUCTO
                         const citaSql = `
-                            INSERT INTO cita (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
+                            INSERT INTO CITA (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
                             VALUES (?, ?, ?, ?)
                         `;
                         console.log('SQL Query CITA:', citaSql, [cedula, prd_id, fechaPedido, "agendar"]);
