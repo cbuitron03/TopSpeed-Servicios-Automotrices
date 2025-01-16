@@ -230,20 +230,39 @@ app.post('/procesar-pedido', (req, res) => {
                         errorOccurred = true;
                         return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
                     }
-
-                    // Query para insertar en PEDIDO_PRODUCTO
-                    const pedidoProductoSql = `
-                        INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                        VALUES (?, ?, ?, ?)
-                    `;
-                    console.log('SQL Query PED_PRODUCTO:', pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)]);
-
-                    db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
-                        if (err) {
+                    if(parseInt(prd_codigo, 10)<4){
+                        
+                        // Query para insertar en PEDIDO_PRODUCTO
+                        const pedidoProductoSql = `
+                            INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                            VALUES (?, ?, ?, ?)
+                        `;
+                        console.log('SQL Query PED_PRODUCTO:', pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)]);
+                        
+                        db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
+                            if (err) {
                             console.error('Error inserting into PED_PRODUCTO table:', err.message);
                             errorOccurred = true;
                             return res.status(500).send({ error: 'Error al procesar el pedido.' });
-                        }
+                            }
+                        });
+                    }
+                    else{
+                        // Query para insertar en PEDIDO_PRODUCTO
+                        const citaSql = `
+                            INSERT INTO cita (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
+                            VALUES (?, ?, ?, ?)
+                        `;
+                        console.log('SQL Query CITA:', citaSql, [cedula, prd_id, fechaPedido, "agendar"]);
+                        
+                        db.query(citaSql, [cedula, prd_id, fechaPedido, "agendar"], (err) => {
+                            if (err) {
+                            console.error('Error inserting into CITA table:', err.message);
+                            errorOccurred = true;
+                            return res.status(500).send({ error: 'Error al procesar el pedido.' });
+                            }
+                        });
+                    }
 
                         // Query para actualizar el inventario
                         const actualizarInventarioSql = `
@@ -266,7 +285,6 @@ app.post('/procesar-pedido', (req, res) => {
                                 res.status(200).send({ message: 'Pedido procesado exitosamente.' });
                             }
                         });
-                    });
                 });
             });
         });
