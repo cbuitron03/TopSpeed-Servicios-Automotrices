@@ -225,11 +225,11 @@ app.post('/procesar-pedido', (req, res) => {
 
                     const prd_codigo = result[0].PRD_ID;
 
-                    if (!prd_codigo || !cantidad || !precio) {
+                    /*if (!prd_codigo || !cantidad || !precio) {
                         console.error('Producto con datos faltantes:', producto);
                         errorOccurred = true;
                         return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
-                    }
+                    }*/
                     if(parseInt(prd_codigo, 10)<4){
                         
                         // Query para insertar en PEDIDO_PRODUCTO
