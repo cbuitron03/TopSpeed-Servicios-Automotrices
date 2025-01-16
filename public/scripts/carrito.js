@@ -234,8 +234,14 @@ document.getElementById("checkout-button").addEventListener("click", function ()
             return;
         }
 
-        // Obtener la cédula del usuario logeado (en este caso almacenada como user1)
-        const cedula = document.getElementById("username"); // Cambia esto según tu implementación
+        // Obtener la cédula del usuario logeado (ahora obtenemos el valor del campo de texto)
+        const cedula = document.getElementById("username").value;  // Cambiado aquí
+
+        // Verificar si la cédula está vacía (puede ser útil para evitar problemas)
+        if (!cedula) {
+            alert("Por favor, ingresa tu cédula.");
+            return;
+        }
 
         // Preparar los datos del pedido
         const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
