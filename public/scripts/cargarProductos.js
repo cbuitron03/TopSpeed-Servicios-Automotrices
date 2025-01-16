@@ -1,6 +1,6 @@
 // Función para cargar los productos desde el archivo JSON
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('../data/productos.json')  // Ruta del archivo JSON
+    fetch('../productos.json')  // Ruta del archivo JSON
         .then(response => response.json())
         .then(data => cargarGaleria(data.data))
         .catch(error => console.error('Error cargando los datos:', error));
