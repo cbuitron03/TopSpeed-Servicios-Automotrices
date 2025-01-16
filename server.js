@@ -207,11 +207,10 @@ app.post('/procesar-pedido', (req, res) => {
             productos.forEach((producto) => {
                 const { prd_id, cantidad, precio } = producto;
 
-                // Validar que el producto tenga precio mayor a cero
-                if (!prd_id || !cantidad || parseFloat(precio) <= 0) {
-                    console.error('Producto con datos faltantes o precio inválido:', producto);
+                if (!prd_id || !cantidad || !precio) {
+                    console.error('Producto con datos faltantes:', producto);
                     errorOccurred = true; // Establecer el error
-                    return res.status(400).send({ error: 'Datos incompletos o precio inválido en la lista de productos.' });
+                    return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
                 }
 
                 // Insertar en PEDIDO_PRODUCTO
