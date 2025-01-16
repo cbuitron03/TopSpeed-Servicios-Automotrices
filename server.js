@@ -215,13 +215,13 @@ app.post('/procesar-pedido', (req, res) => {
 
                 // Insertar en PEDIDO_PRODUCTO
                 const pedidoProductoSql = `
-                    INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                    INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
                     VALUES (?, ?, ?, ?)
                 `;
 
                 db.query(pedidoProductoSql, [prd_id, newPedNum, cantidad, parseFloat(precio)], (err) => {
                     if (err) {
-                        console.error('Error inserting into PEDIDO_PRODUCTO table:', err.message);
+                        console.error('Error inserting into PED_PRODUCTO table:', err.message);
                         errorOccurred = true;
                         return res.status(500).send({ error: 'Error al procesar el pedido.' });
                     }
