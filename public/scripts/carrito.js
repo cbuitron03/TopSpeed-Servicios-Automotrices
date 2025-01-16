@@ -230,21 +230,56 @@ document.getElementById("checkout-button").addEventListener("click", function ()
     const isLoggedIn = sessionStorage.getItem("loggedIn");
 
     if (isLoggedIn === "true") {
-        // Ejecutar el proceso de compra
+        // Verificar que el carrito no esté vacío
         if (carrito.length === 0) {
             alert("Tu carrito está vacío.");
             return;
         }
 
-        alert(
-            `Compraste: ${carrito
-                .map((item) => `${item.cantidad} x ${item.nombre}`)
-                .join(", ")}. ¡Gracias por tu compra!`
-        );
-        carrito = [];
-        actualizarCarrito();
-        toggleCart();
-        guardarCarrito();
+        // Obtener la cédula del usuario logeado (en este caso almacenada como user1)
+        const cedula = '1000732592'; // Cambia esto según tu implementación
+
+        // Preparar los datos del pedido
+        const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+        const fechaPedido = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const fechaEntrega = new Date(); // Fecha estimada de entrega (ejemplo: +7 días)
+        fechaEntrega.setDate(fechaEntrega.getDate() + 7);
+        const fechaEntregaStr = fechaEntrega.toISOString().split('T')[0];
+
+        // Enviar los datos al servidor
+        fetch('/procesar-pedido', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                cedula: cedula,
+                total: total.toFixed(2),
+                fechaPedido: fechaPedido,
+                fechaEntrega: fechaEntregaStr,
+                productos: carrito.map(item => ({
+                    prd_id: item.nombre, // Ajustar según el formato de ID en el carrito
+                    cantidad: item.cantidad,
+                    precio: item.precio,
+                })),
+            }),
+        })
+        .then(response => {
+            if (response.ok) {
+                // Procesar respuesta exitosa
+                alert("Compra realizada exitosamente. ¡Gracias!");
+                carrito = [];
+                actualizarCarrito(); // Actualizar el carrito en el frontend
+                toggleCart(); // Cerrar el carrito
+                guardarCarrito(); // Limpiar el carrito en localStorage
+            } else {
+                alert("Hubo un error al procesar el pedido. Inténtalo nuevamente.");
+            }
+        })
+        .catch(error => {
+            console.error("Error al conectar con el servidor:", error);
+            alert("Error al procesar el pedido. Verifica tu conexión e inténtalo nuevamente.");
+        });
     } else {
         alert("Por favor, inicia sesión para proceder a la compra.");
         toggleCart();

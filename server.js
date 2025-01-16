@@ -165,3 +165,43 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
+app.post('/procesar-pedido', async (req, res) => {
+    const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
+
+    try {
+        // 1. Insertar en la tabla PEDIDO
+        const [pedidoResult] = await db.query(
+            `INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
+             VALUES (?, ?, ?, ?)`,
+            [cedula, total, fechaPedido, fechaEntrega]
+        );
+
+        const pedNum = pedidoResult.insertId; // Obtener el número de pedido generado
+
+        // 2. Insertar en la tabla PEDIDO_PRODUCTO y actualizar inventario
+        for (const producto of productos) {
+            const { prd_id, cantidad, precio } = producto;
+
+            // Insertar en PEDIDO_PRODUCTO
+            await db.query(
+                `INSERT INTO PEDIDO_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                 VALUES (?, ?, ?, ?)`,
+                [prd_id, pedNum, cantidad, precio]
+            );
+
+            // Actualizar el inventario
+            await db.query(
+                `UPDATE PRODUCTO 
+                 SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
+                 WHERE PRD_ID = ?`,
+                [cantidad, prd_id]
+            );
+        }
+
+        res.status(200).send({ message: 'Pedido procesado exitosamente.' });
+    } catch (error) {
+        console.error('Error al procesar el pedido:', error);
+        res.status(500).send({ error: 'Error al procesar el pedido.' });
+    }
+});
