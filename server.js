@@ -202,55 +202,67 @@ app.post('/procesar-pedido', (req, res) => {
             let errorOccurred = false; // Flag para controlar errores
 
             productos.forEach((producto) => {
-                const { prd_id, cantidad, precio } = producto;
+                const { prd_nombre, cantidad, precio } = producto;
+
+                // Obtener PRD_ID a partir del nombre del producto
                 const QUERYPRDID = 'SELECT PRD_ID FROM PRODUCTO WHERE PRD_NOMBRE = ?';
-                db.query(QUERYPRDID, [prd_id], (err, prd_codigo) => {
+
+                db.query(QUERYPRDID, [prd_nombre], (err, result) => {
                     if (err) {
                         console.error('Error getting product ID:', err.message);
-                        return res.status(500).send({ error: 'Error al obtener id delproducto.' });
-                    }
-                });
-                    const lastInsertedPedNum = lastInsertResult[0].lastInsertedPedNum;
-                if (!prd_id || !cantidad || !precio) {
-                    console.error('Producto con datos faltantes:', producto);
-                    errorOccurred = true; // Establecer el error
-                    return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
-                }
-
-                // Query para insertar en PEDIDO_PRODUCTO
-                const pedidoProductoSql = `
-                    INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                    VALUES (?, ?, ?, ?)
-                `;
-                console.log('SQL Query PED_PRODUCTO:', pedidoProductoSql, [prd_id, lastInsertedPedNum, cantidad, parseFloat(precio)]);
-
-                db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
-                    if (err) {
-                        console.error('Error inserting into PED_PRODUCTO table:', err.message);
                         errorOccurred = true;
-                        return res.status(500).send({ error: 'Error al procesar el pedido.' });
+                        return res.status(500).send({ error: 'Error al obtener el ID del producto.' });
                     }
 
-                    // Query para actualizar el inventario
-                    const actualizarInventarioSql = `
-                        UPDATE PRODUCTO 
-                        SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
-                        WHERE PRD_ID = ?
-                    `;
-                    console.log('SQL Query UPDATE PRODUCTO:', actualizarInventarioSql, [cantidad, prd_id]);
+                    if (result.length === 0) {
+                        console.error('Producto no encontrado:', prd_nombre);
+                        errorOccurred = true;
+                        return res.status(400).send({ error: `Producto no encontrado: ${prd_nombre}` });
+                    }
 
-                    db.query(actualizarInventarioSql, [cantidad, prd_id], (err) => {
+                    const prd_codigo = result[0].PRD_ID;
+
+                    if (!prd_codigo || !cantidad || !precio) {
+                        console.error('Producto con datos faltantes:', producto);
+                        errorOccurred = true;
+                        return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
+                    }
+
+                    // Query para insertar en PEDIDO_PRODUCTO
+                    const pedidoProductoSql = `
+                        INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                        VALUES (?, ?, ?, ?)
+                    `;
+                    console.log('SQL Query PED_PRODUCTO:', pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)]);
+
+                    db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
                         if (err) {
-                            console.error('Error updating PRODUCTO table:', err.message);
+                            console.error('Error inserting into PED_PRODUCTO table:', err.message);
                             errorOccurred = true;
                             return res.status(500).send({ error: 'Error al procesar el pedido.' });
                         }
 
-                        // Incrementar contador y verificar si todas las operaciones terminaron
-                        completed++;
-                        if (completed === totalProductos && !errorOccurred) {
-                            res.status(200).send({ message: 'Pedido procesado exitosamente.' });
-                        }
+                        // Query para actualizar el inventario
+                        const actualizarInventarioSql = `
+                            UPDATE PRODUCTO 
+                            SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
+                            WHERE PRD_ID = ?
+                        `;
+                        console.log('SQL Query UPDATE PRODUCTO:', actualizarInventarioSql, [cantidad, prd_codigo]);
+
+                        db.query(actualizarInventarioSql, [cantidad, prd_codigo], (err) => {
+                            if (err) {
+                                console.error('Error updating PRODUCTO table:', err.message);
+                                errorOccurred = true;
+                                return res.status(500).send({ error: 'Error al procesar el pedido.' });
+                            }
+
+                            // Incrementar contador y verificar si todas las operaciones terminaron
+                            completed++;
+                            if (completed === totalProductos && !errorOccurred) {
+                                res.status(200).send({ message: 'Pedido procesado exitosamente.' });
+                            }
+                        });
                     });
                 });
             });
