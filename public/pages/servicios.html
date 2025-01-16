@@ -103,7 +103,7 @@
             async function cargarProductos() {
                 try {
                     // Obtiene los productos desde el archivo JSON
-                    const response = await fetch('./data/productos.json');
+                    const response = await fetch('../data/productos.json');
                     const data = await response.json();
                     
                     // Los datos de los productos
