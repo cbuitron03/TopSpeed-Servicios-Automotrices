@@ -1,7 +1,3 @@
-// Credenciales quemadas
-const USERNAME = "admin";
-const PASSWORD = "admin";
-
 // Función para mostrar el modal de inicio de sesión
 function showLogin() {
     document.getElementById("login-modal").classList.remove("hidden");
@@ -17,14 +13,36 @@ document.getElementById("login-button").addEventListener("click", function () {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    if (username === USERNAME && password === PASSWORD) {
-        alert("Inicio de sesión exitoso");
-        sessionStorage.setItem("loggedIn", "true");
-        closeLogin();
-        toggleCart();
-    } else {
-        alert("Usuario o contraseña incorrectos");
+    // Verificar que los campos no estén vacíos
+    if (!username || !password) {
+        alert("Por favor, ingresa tu usuario y contraseña.");
+        return;
     }
+
+    // Enviar credenciales al servidor
+    fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cedula: username, contrasena: password }),
+    })
+    .then(response => {
+        if (response.ok) {
+            // Inicio de sesión exitoso
+            alert("Inicio de sesión exitoso");
+            sessionStorage.setItem("loggedIn", "true");
+            closeLogin();
+            toggleCart();
+        } else {
+            // Error en las credenciales
+            alert("Usuario o contraseña incorrectos");
+        }
+    })
+    .catch(error => {
+        console.error("Error al conectar con el servidor:", error);
+        alert("Hubo un problema con la conexión al servidor. Inténtalo nuevamente.");
+    });
 });
 
 let productoActual = '';

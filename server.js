@@ -135,3 +135,31 @@ app.get('/productos', (req, res) => {
         });
     });
 });
+
+// Ruta para inicio de sesión
+app.post('/login', (req, res) => {
+    const { cedula, contrasena } = req.body;
+
+    // Verificar si la cédula existe en la tabla
+    const queryCedula = 'SELECT contrasena FROM duenio WHERE cedula = ?';
+    db.query(queryCedula, [cedula], (err, results) => {
+        if (err) {
+            console.error('Error al consultar la base de datos:', err);
+            return res.status(500).send('Error interno del servidor');
+        }
+
+        if (results.length === 0) {
+            // La cédula no existe
+            return res.status(401).send('Credenciales incorrectas');
+        }
+
+        const contrasenaAlmacenada = results[0].contrasena;
+
+        // Comparar contraseñas
+        if (contrasenaAlmacenada === contrasena) {
+            return res.status(200).send('Inicio de sesión exitoso');
+        } else {
+            return res.status(401).send('Credenciales incorrectas');
+        }
+    });
+});
