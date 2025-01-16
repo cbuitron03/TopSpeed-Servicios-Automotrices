@@ -102,8 +102,7 @@ app.get('/productos', (req, res) => {
         }
 
         // Transformar los registros al formato deseado
-        const transformedData = results.map((producto, index) => {
-            // Separar las rutas de las imágenes adicionales por coma
+        const transformedData = results.map((producto) => {
             const imagenesAdicionales = producto.imagen_adicionales ? producto.imagen_adicionales.split(',') : [null, null, null];
 
             return [
@@ -119,11 +118,13 @@ app.get('/productos', (req, res) => {
                 producto.PRD_D_M || '', // Descripción adicional
                 producto.PRD_I_S ? producto.PRD_I_S.split(',') : [], // Imágenes adicionales
                 producto.PRD_ALT1 || '' // Otra descripción o título
-              ];
+            ];
         });
 
+        // Usar path.join para generar la ruta correcta dentro de 'public'
+        const jsonFilePath = path.join(__dirname, 'public', 'productos.json');
+
         // Guardar los datos transformados en un archivo JSON
-        const jsonFilePath = '../public/productos.json';
         fs.writeFileSync(jsonFilePath, JSON.stringify(transformedData, null, 2));
 
         // Enviar respuesta al cliente
