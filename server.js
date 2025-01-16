@@ -76,3 +76,62 @@ app.listen(8080, () => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+app.get('/vehiculo', (req, res) => {
+    // Ajusta el nombre de la tabla si es "VEHICULO" o "productos"
+    const query = 'SELECT * FROM VEHICULO';
+
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error al obtener productos:', err);
+        return res.status(500).send('Error al obtener productos');
+      }
+      res.json(results); // Devuelve la lista de productos
+    });
+  });
+
+// Endpoint para obtener los datos y exportarlos
+app.get('/productos', (req, res) => {
+    const query = 'SELECT * FROM producto';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error al consultar los datos:', err);
+            return res.status(500).json({ error: 'Error al consultar los datos' });
+        }
+
+        // Transformar los registros al formato deseado
+        const transformedData = results.map((producto, index) => {
+            // Separar las rutas de las imágenes adicionales por coma
+            const imagenesAdicionales = producto.imagen_adicionales ? producto.imagen_adicionales.split(',') : [null, null, null];
+
+            return [
+                index + 1,
+                producto.descripcion_corta,
+                producto.precio,
+                producto.stock || 500,
+                producto.nombre,
+                producto.imagen_principal,
+                producto.ancho || 0,
+                producto.alto || 0,
+                producto.modal_nombre,
+                producto.modal_descripcion,
+                imagenesAdicionales[0], // Primera imagen adicional
+                imagenesAdicionales[1], // Segunda imagen adicional
+                imagenesAdicionales[2], // Tercera imagen adicional
+                producto.categoria,
+            ];
+        });
+
+        // Guardar los datos transformados en un archivo JSON
+        const jsonFilePath = './productos.json';
+        fs.writeFileSync(jsonFilePath, JSON.stringify(transformedData, null, 2));
+
+        // Enviar respuesta al cliente
+        res.json({
+            message: 'Datos exportados correctamente',
+            file: jsonFilePath,
+            data: transformedData,
+        });
+    });
+});

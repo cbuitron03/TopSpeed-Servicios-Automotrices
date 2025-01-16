@@ -4,9 +4,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="HTML, CSS, JavaScript"> 
     <title>Servicios</title>
-    <link href="../CSS/style.css" rel="stylesheet"></link>
+    <link href="../CSS/style.css" rel="stylesheet">
     <script src="../scripts/script.js" defer></script>
     <script src="../scripts/carrito.js" defer></script>
+    <script src="../scripts/cargarProductos.js" defer></script> <!-- Agregar este script -->
 </head>
 <body>
     <header>
@@ -29,56 +30,15 @@
     <article>
         <h1>Servicios</h1>
         <h2>Accesorios Off-Road</h2>
-        <div class="galeria">
-            <div class="item" data-nombre="Cabrestante" data-precio="900.00">
-                <img class="imagen" src="../images/servicios/wincha-min.png" width="327" height="410" onclick="abrirModal('Cabrestante', 'Warn Zeon 15000LB $900.00', ['../images/servicios/wincha.png', '../images/servicios/wincha2.png'])" alt="Cabrestantes">
-                <div class="descripcion">Cabrestantes - $900.00</div>
-            </div>
-            <div class="item" data-nombre="Halógenos" data-precio="675.00">
-                <img class="imagen" src="../images/servicios/halogeno-min.png" width="327" height="410" onclick="abrirModal('Halógenos', 'Par Dobinsons LED 8inch $675.00 ', ['../images/servicios/halogeno.png', '../images/servicios/halogeno2.png'])" alt="Neblineros"/>
-                <div class="descripcion">Iluminación - $675.00</div>
-            </div>
-            <div class="item" data-nombre="Suspensión Fox" data-precio="2300.00">
-                <img class="imagen" src="../images/servicios/suspen-min.png" width="327" height="410" onclick="abrirModal('Suspensión Fox', 'Fox Performance Coilovers Kit $2300.00', ['../images/servicios/suspen.png', '../images/servicios/suspen2.png', '../images/servicios/suspen3.png'])" alt="Suspensiones"/>
-                <div class="descripcion">Suspensiones y Lift Kits - $2300.00</div>
-            </div>
-        </div>    
-        <h2>Mantenimiento</h2>   
-        <div class="galeria">
-            <div class="item" data-nombre="Cita ABC de Frenos" data-precio="0.00">
-                <img class="imagen" src="../images/servicios/abcfrenos-min.png" width="327" height="409" onclick="abrirModal('Cita ABC de Frenos', 'Cambio, Limpieza y Mantenimiento', ['../images/servicios/abcfrenos.png', '../images/servicios/abcfrenos2.png'])" alt="ABC Frenos"/>
-                <div class="descripcion">Cita ABC de Frenos</div>
-            </div>
-            <div class="item" data-nombre="Cita Enllantaje" data-precio="0.00">
-                <img class="imagen" src="../images/servicios/enllantaje-min.png" width="328" height="409" onclick="abrirModal('Cita Enllantaje', 'Enllantaje Especializado', ['../images/servicios/enllantaje.png' , '../images/servicios/enllantaje2.png'])" alt="Enllantaje"/>
-                <div class="descripcion">Cita Enllantaje</div>
-            </div>
-            <div class="item" data-nombre="Cita Alineación" data-precio="0.00">
-                <img class="imagen" src="../images/servicios/alineacion-min.png" width="328" height="412" onclick="abrirModal('Cita Alineación', 'Alineación Computarizda', ['../images/servicios/alineacion.png' , '../images/servicios/alineacion2.png'])" alt="Alineación"/>
-                <div class="descripcion">Cita Alineación</div>
-            </div>
-            <div class="item" data-nombre="Cita Balanceo" data-precio="0.00">
-                <img class="imagen" src="../images/servicios/balanceo-min.png" width="329" height="409" onclick="abrirModal('Cita Balanceo', 'Balanceo Electrónico', ['../images/servicios/balanceo.png'])" alt="Balanceo"/>
-                <div class="descripcion">Cita Balanceo</div>
-            </div>
-        </div>
+        <div class="galeria" id="accesorios"></div>  <!-- Se carga dinámicamente -->
+
+        <h2>Mantenimiento</h2>
+        <div class="galeria" id="mantenimiento"></div> <!-- Se carga dinámicamente -->
+
         <h2>Detailing</h2>
-        <div class="galeria">
-            <div class="item" data-nombre="Cita Detailing Exterior" data-precio="0.00"> 
-                <img class="imagen" src="../images/servicios/detailing1-min.png" width="411" height="308" onclick="abrirModal('Cita Detailing Exterior', 'Lavado, Encerado, Pulido, Recubrimiento Cerámico', ['../images/servicios/detailing1.png'])" alt="Detailing Exterior"/>
-                <div class="descripcion">Cita Detailing Exterior</div>
-            </div>
-            <div class="item" data-nombre="Cita Detailing Interior" data-precio="0.00">
-                <img class="imagen" src="../images/servicios/detailing2-min.png" width="411" height="308" onclick="abrirModal('Cita Detailing Interior', 'Detailing Interior Completo', ['../images/servicios/detailing2.png'])" alt="Detailing Interior"/>
-                <div class="descripcion">Cita Detailing Interior</div>
-            </div>
-            <div class="item" data-nombre="Cita Detailing de Motor" data-precio="0.00">
-                <img class="imagen" src="../images/servicios/detailing3-min.png" width="411" height="308" onclick="abrirModal('Cita Detailing de Motor', 'Limpieza y Detallado', ['../images/servicios/detailing3.png'])" alt="Detailing Motor"/>
-                <div class="descripcion">Cita Detailing de Motor</div>
-            </div>
-        </div>
+        <div class="galeria" id="detailing"></div>  <!-- Se carga dinámicamente -->
         
-            <!-- Modal para mostrar las imágenes del producto -->
+        <!-- Modal para mostrar las imágenes del producto -->
         <div id="modal">
             <div id="modal-content">
                 <button class="close-btn" onclick="cerrarModal()">×</button>
@@ -92,6 +52,7 @@
                 <button class="comprar-btn" onclick="comprarProducto()">Comprar</button>
             </div>
         </div>
+
         <div id="login-modal" class="hidden">
             <div class="login-content">
                 <h2>Iniciar Sesión</h2>
@@ -103,6 +64,7 @@
                 <button onclick="closeLogin()">Cancelar</button>
             </div>
         </div>
+
         <div id="cart-modal" class="hidden">
             <div class="cart-content">
                 <button class="close-cart" onclick="toggleCart()">×</button>
@@ -117,9 +79,10 @@
             </div>
         </div>
     </article>
+
     <footer>
         <div id="botones">
-            <nav id= "pie">
+            <nav id="pie">
                 <u2>
                     <li><a href="tel:+593999312120">Llámanos</a></li>
                     <li><a href="https://www.instagram.com/topspeed.ec/">@topspeed.ec</a></li>
@@ -127,5 +90,6 @@
             </nav>
         </div>
     </footer>
-    </body>
+
+</body>
 </html>
