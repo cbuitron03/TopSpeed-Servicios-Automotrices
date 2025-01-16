@@ -44,11 +44,11 @@ app.post('/submit', (req, res) => {
 
     // Insertar datos en la tabla `duenio`
     const duenioSql = `
-        INSERT INTO DUENIO (cedula, name, email, phone, address, dob, gender, password) 
+        INSERT INTO DUENIO (CEDULA, NOMBRE, EMAIL, TELEFONO, DIRECCION, FECHA_NAC, GENERO, CONTRASENA) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const vehiculoSql = `
-        INSERT INTO VEHICULO (placa, cedula, marca, modelo, color, anio) 
+        INSERT INTO VEHICULO (PLACA, CEDULA, MARCA, MODELO, COLOR, ANIO) 
         VALUES (?, ?, ?, ?, ?, ?)
     `;
 
@@ -58,7 +58,7 @@ app.post('/submit', (req, res) => {
             return res.status(500).send({ message: 'Error saving data' });
         }
         // Insertar datos en la tabla `vehiculo`
-        db.query(vehiculoSql, [placa, marca, modelo, color, anio, cedula], (err) => {
+        db.query(vehiculoSql, [placa, cedula, marca, modelo, color, anio], (err) => {
             if (err) {
                 console.error('Error inserting into vehiculo table:', err.message);
                 return res.status(500).send({ message: 'Error saving data' });
@@ -138,7 +138,7 @@ app.get('/productos', (req, res) => {
 
 // Ruta para inicio de sesión
 app.post('/login', (req, res) => {
-    const { cedula, contrasena } = req.body;
+    const { cedula , contrasena }= req.body;
 
     // Verificar si la cédula existe en la tabla
     const queryCedula = 'SELECT CONTRASENA FROM DUENIO WHERE CEDULA = ?';
@@ -148,15 +148,17 @@ app.post('/login', (req, res) => {
             return res.status(500).send('Error interno del servidor');
         }
 
+        console.log(results); // Para depuración
+
         if (results.length === 0) {
             // La cédula no existe
-            return res.status(401).send('Credenciales incorrectas');
+            return res.status(401).send('Usuario no encontrado');
         }
 
-        const contrasenaAlmacenada = results[0].contrasena;
+        const contrasenaAlmacenada = results[0].CONTRASENA; // Mayúsculas para el campo
 
         // Comparar contraseñas
-        if (contrasenaAlmacenada === contrasena) {
+        if (contrasenaAlmacenada.trim() === contrasena) { // Usar trim() para evitar problemas de espacios
             return res.status(200).send('Inicio de sesión exitoso');
         } else {
             return res.status(401).send('Credenciales incorrectas');
