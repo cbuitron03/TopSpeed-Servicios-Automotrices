@@ -91,13 +91,18 @@
         </div>
     </footer>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             cargarServicios();
         });
 
         function cargarServicios() {
-            fetch('../productos.json')
-                .then(response => response.json())
+            fetch('/productos') // Cambia la ruta al endpoint de tu servidor
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     // Filtrar productos por categorías
                     const galeriaOffRoad = document.getElementById('galeria-offroad');
@@ -110,7 +115,7 @@
                     galeriaDetailing.innerHTML = '';
 
                     // Iterar sobre los productos y agregar a la categoría correspondiente
-                    data.forEach(producto => {
+                    data.data.forEach(producto => {
                         const [id, nombre, precio, stock, descripcion, imagenPrincipal, ancho, alto, titulo, descAdicional, imagenesAdicionales, categoria] = producto;
 
                         // Crear el div del item
@@ -158,13 +163,14 @@
                         }
                     });
                 })
-                .catch(error => console.error('Error al cargar el archivo JSON:', error));
+                .catch(error => console.error('Error al cargar los productos:', error));
         }
 
         function abrirModal(nombre, descripcion, imagenes) {
-            // Lógica del modal (opcional)
+            // Lógica del modal
             console.log('Abrir modal con:', nombre, descripcion, imagenes);
         }
+
     </script>
 </body>
 </html>
