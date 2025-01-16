@@ -203,7 +203,14 @@ app.post('/procesar-pedido', (req, res) => {
 
             productos.forEach((producto) => {
                 const { prd_id, cantidad, precio } = producto;
-
+                const QUERYPRDID = 'SELECT PRD_ID FROM PRODUCTO WHERE PRD_NOMBRE = ?';
+                db.query(QUERYPRDID, [prd_id], (err, prd_codigo) => {
+                    if (err) {
+                        console.error('Error getting product ID:', err.message);
+                        return res.status(500).send({ error: 'Error al obtener id delproducto.' });
+                    }
+                });
+                    const lastInsertedPedNum = lastInsertResult[0].lastInsertedPedNum;
                 if (!prd_id || !cantidad || !precio) {
                     console.error('Producto con datos faltantes:', producto);
                     errorOccurred = true; // Establecer el error
@@ -217,7 +224,7 @@ app.post('/procesar-pedido', (req, res) => {
                 `;
                 console.log('SQL Query PED_PRODUCTO:', pedidoProductoSql, [prd_id, lastInsertedPedNum, cantidad, parseFloat(precio)]);
 
-                db.query(pedidoProductoSql, [prd_id, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
+                db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
                     if (err) {
                         console.error('Error inserting into PED_PRODUCTO table:', err.message);
                         errorOccurred = true;
