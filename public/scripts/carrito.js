@@ -10,11 +10,11 @@ function closeLogin() {
 
 // Manejar el inicio de sesión
 document.getElementById("login-button").addEventListener("click", function () {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password1").value.trim();
+    const user1 = document.getElementById("username").value.trim();
+    const clave = document.getElementById("password1").value.trim();
 
     // Verificar que los campos no estén vacíos
-    if (!username || !password) {
+    if (!user1 || !clave) {
         alert("Por favor, ingresa tu usuario y contraseña.");
         return;
     }
@@ -25,7 +25,7 @@ document.getElementById("login-button").addEventListener("click", function () {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cedula: username, contrasena: password }),
+        body: JSON.stringify({ cedula: user1, contrasena: clave }),
     })
     .then(response => {
         if (response.ok) {
