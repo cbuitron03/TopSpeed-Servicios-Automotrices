@@ -1,3 +1,9 @@
+let productoActual = '';
+let descripcionActual = '';
+let imagenesActuales = [];
+let imagenPrincipal = '';
+let carrito = [];
+
 // Función para mostrar el modal de inicio de sesión
 function showLogin() {
     document.getElementById("login-modal").classList.remove("hidden");
@@ -43,18 +49,97 @@ document.getElementById("login-button").addEventListener("click", function () {
     });
 });
 
-let productoActual = '';
-let descripcionActual = '';
-let imagenesActuales = [];
-let imagenPrincipal = '';
-let carrito = [];
+// Función para actualizar el carrito
+function actualizarCarrito() {
+    const cartItems = document.getElementById('cart-items');
+    const subtotalEl = document.getElementById('subtotal');
+    const ivaEl = document.getElementById('iva');
+    const totalEl = document.getElementById('total');
 
-// Función para cargar los productos desde la base de datos
-// Función para cargar los productos desde la base de datos
+    // Limpia el contenido del carrito
+    cartItems.innerHTML = '';
+    let subtotal = 0;
+
+    // Recorre los productos en el carrito
+    carrito.forEach((item, index) => {
+        const itemTotal = item.precio * item.cantidad;
+        subtotal += itemTotal;
+
+        // Crea el elemento del producto en el carrito
+        const listItem = document.createElement('li');
+        listItem.style.display = 'flex';
+        listItem.style.alignItems = 'center';
+        listItem.style.marginBottom = '10px';
+
+        // Imagen del producto
+        const productImg = document.createElement('img');
+        productImg.src = item.imagen; // Asegúrate de que los productos tengan una URL de imagen
+        productImg.alt = item.nombre;
+        productImg.style.width = '50px';
+        productImg.style.height = '50px';
+        productImg.style.marginRight = '10px';
+
+        // Información del producto
+        const productInfo = document.createElement('div');
+        productInfo.innerHTML = `
+            <p><strong>${item.nombre}</strong></p>
+            <p>Cantidad: ${item.cantidad}</p>
+            <p>Precio: $${item.precio.toFixed(2)}</p>
+            <p>Total: $${itemTotal.toFixed(2)}</p>
+        `;
+        productInfo.style.flexGrow = '1';
+
+        // Botón de eliminar
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Eliminar';
+        deleteBtn.style.marginLeft = '10px';
+        deleteBtn.onclick = () => eliminarProducto(index);
+
+        // Añade los elementos al elemento del carrito
+        listItem.appendChild(productImg);
+        listItem.appendChild(productInfo);
+        listItem.appendChild(deleteBtn);
+
+        cartItems.appendChild(listItem);
+    });
+
+    // Calcula IVA y total
+    const iva = subtotal * 0.15;
+    const total = subtotal + iva;
+
+    // Actualiza los valores en el resumen
+    subtotalEl.textContent = subtotal.toFixed(2);
+    ivaEl.textContent = iva.toFixed(2);
+    totalEl.textContent = total.toFixed(2);
+}
+
+// Elimina un producto del carrito
+function eliminarProducto(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+    guardarCarrito(); // Guardar el carrito
+}
+
+// Carga el carrito desde localStorage
+function cargarCarrito() {
+    const carritoGuardado = localStorage.getItem("carrito");
+    if (carritoGuardado) {
+        carrito = JSON.parse(carritoGuardado);
+        actualizarCarrito();
+    }
+}
+
+// Guarda el carrito en localStorage
+function guardarCarrito() {
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+}
+
+// Función para cargar los productos
 function cargarProductos() {
     fetch('/productos') // Solicita el endpoint para obtener los productos
         .then(response => response.json())
         .then(data => {
+            console.log("Datos de productos:", data); // Verifica lo que llega del servidor
             if (data && data.data) {
                 const productos = data.data.map(producto => {
                     return {
@@ -67,8 +152,7 @@ function cargarProductos() {
                         imagenes: producto[10],       // PRD_I_S (imagenes adicionales)
                     };
                 });
-                // Ahora podemos actualizar los productos en el carrito si es necesario
-                actualizarProductosEnCarrito(productos);
+                // Aquí deberías insertar el código para mostrar estos productos en la página
             } else {
                 alert("No se pudieron cargar los productos.");
             }
@@ -79,26 +163,9 @@ function cargarProductos() {
         });
 }
 
-// Función para actualizar los productos en el carrito usando los datos cargados
-function actualizarProductosEnCarrito(productos) {
-    carrito = carrito.map(item => {
-        const producto = productos.find(prod => prod.prd_id === item.nombre); // Usamos PRD_ID
-        if (producto) {
-            return {
-                ...item,
-                precio: producto.precio,
-                descripcion: producto.descripcion,
-                imagen: producto.imagenPrincipal,
-            };
-        }
-        return item;
-    });
-    actualizarCarrito();
-}
-
-// Abre el modal de un producto con detalles completos
+// Función para abrir el modal de producto
 function abrirModal(prdId) {
-    fetch(`/productos`)  // Reutilizamos el endpoint para obtener los productos completos
+    fetch('/productos')  // Nuevamente solicitamos los productos desde el endpoint
         .then(response => response.json())
         .then(data => {
             const producto = data.data.find(p => p[0] === prdId); // Busca el producto por PRD_ID
@@ -133,39 +200,77 @@ function abrirModal(prdId) {
         });
 }
 
-// Función para añadir producto al carrito usando PRD_ID
+// Selecciona la imagen principal desde las miniaturas
+function seleccionarImagenPrincipal(src) {
+    imagenPrincipal = src;
+    document.getElementById("main-img").src = src;
+
+    // Actualiza las clases activas
+    const miniaturas = document.querySelectorAll(".modal-img");
+    miniaturas.forEach(img => img.classList.remove("active"));
+    document.querySelector(`.modal-img[src="${src}"]`).classList.add("active");
+}
+
+// Cierra el modal del producto
+function cerrarModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// Función para añadir un producto al carrito
 function comprarProducto() {
     const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
 
-    fetch(`/productos`)  // Nuevamente solicitamos los productos desde el endpoint
-        .then(response => response.json())
-        .then(data => {
-            const producto = data.data.find(p => p[0] === productoActual); // Buscamos el producto por PRD_ID
-            if (!producto) {
-                alert('Error: Producto no encontrado.');
-                return;
-            }
+    const productos = document.querySelectorAll('.item');
+    let productoSeleccionado = null;
 
-            const precio = producto[2]; // PRD_PRECIO
-            const imagen = producto[5]; // PRD_I_P
+    productos.forEach(producto => {
+        const nombre = producto.getAttribute('data-nombre');
+        if (nombre === productoActual) {
+            productoSeleccionado = producto;
+        }
+    });
 
-            carrito.push({
-                nombre: producto[0], // Usamos PRD_ID
-                precio: precio,
-                cantidad: cantidad,
-                imagen: imagen
-            });
+    if (!productoSeleccionado) {
+        alert('Error: Producto no encontrado.');
+        return;
+    }
 
-            alert(`Has añadido ${cantidad} unidad(es) de ${producto[1]} al carrito.`); // Mostramos el nombre en el alert
-            actualizarCarrito();
-            guardarCarrito(); // Guardamos el carrito
-            cerrarModal();
-        })
-        .catch(error => {
-            console.error("Error al agregar el producto al carrito:", error);
-            alert("Hubo un problema al agregar el producto. Inténtalo nuevamente.");
-        });
+    const precio = parseFloat(productoSeleccionado.getAttribute('data-precio'));
+    const imagen = productoSeleccionado.querySelector('img').src;
+
+    // Agrega el producto al carrito
+    carrito.push({
+        nombre: productoActual,
+        precio: precio,
+        cantidad: cantidad,
+        imagen: imagen
+    });
+
+    alert(`Has añadido ${cantidad} unidad(es) de ${productoActual} al carrito.`);
+    actualizarCarrito();
+    guardarCarrito(); // Guardar el carrito
+    cerrarModal();
 }
 
-// Llamar a cargar los productos cuando se carga la página
-window.addEventListener("DOMContentLoaded", cargarProductos);
+// Abre y cierra el modal del carrito
+function toggleCart() {
+    const cartModal = document.getElementById('cart-modal');
+    cartModal.classList.toggle('hidden');
+}
+
+// Validar sesión antes de proceder a la compra
+document.getElementById("checkout-button").addEventListener("click", function () {
+    if (!sessionStorage.getItem("loggedIn")) {
+        alert("Debes iniciar sesión para realizar la compra.");
+        showLogin();
+    } else {
+        alert("Redirigiendo a la página de pago...");
+        // Aquí podrías redirigir al usuario al proceso de pago
+    }
+});
+
+// Carga el carrito al iniciar
+cargarCarrito();
+
+// Cargar productos
+cargarProductos();
