@@ -202,13 +202,13 @@ app.post('/procesar-pedido', (req, res) => {
             let errorOccurred = false; // Flag para controlar errores
 
             productos.forEach((producto) => {
-                const { prd_nombre, cantidad, precio } = producto;
+                const { prd_id, cantidad, precio } = producto;
 
                 // Obtener PRD_ID a partir del nombre del producto
                 const QUERYPRDID = 'SELECT PRD_ID FROM PRODUCTO WHERE PRD_NOMBRE = ?';
-                console.log('SQL Query PRD_ID:', QUERYPRDID, [prd_nombre]);
+                console.log('SQL Query PRD_ID:', QUERYPRDID, [prd_id]);
 
-                db.query(QUERYPRDID, [prd_nombre], (err, result) => {
+                db.query(QUERYPRDID, [prd_id], (err, result) => {
                     if (err) {
                         console.error('Error getting product ID:', err.message);
                         errorOccurred = true;
@@ -218,7 +218,7 @@ app.post('/procesar-pedido', (req, res) => {
                     console.log('Resultado de PRD_ID:', result);
 
                     if (result.length === 0) {
-                        console.error('Producto no encontrado:', prd_nombre);
+                        console.error('Producto no encontrado:', prd_id);
                         errorOccurred = true;
                         return res.status(400).send({ error: `Producto no encontrado: ${prd_nombre}` });
                     }
