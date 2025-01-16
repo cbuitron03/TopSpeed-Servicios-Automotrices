@@ -141,7 +141,7 @@ app.post('/login', (req, res) => {
     const { cedula, contrasena } = req.body;
 
     // Verificar si la cédula existe en la tabla
-    const queryCedula = 'SELECT contrasena FROM duenio WHERE cedula = ?';
+    const queryCedula = 'SELECT CONTRASENA FROM DUENIO WHERE CEDULA = ?';
     db.query(queryCedula, [cedula], (err, results) => {
         if (err) {
             console.error('Error al consultar la base de datos:', err);
