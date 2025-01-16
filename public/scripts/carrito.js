@@ -8,12 +8,10 @@ function closeLogin() {
     document.getElementById("login-modal").classList.add("hidden");
 }
 
-// Manejar el inicio de sesión
 document.getElementById("login-button").addEventListener("click", function () {
-    const user1 = document.getElementById("username");
-    const clave = document.getElementById("password1");;
-    console.log(user1);
-    console.log(clave);
+    const user1 = document.getElementById("username").value.trim();
+    const clave = document.getElementById("password1").value.trim();
+
     // Verificar que los campos no estén vacíos
     if (!user1 || !clave) {
         alert("Por favor, ingresa tu usuario y contraseña.");
@@ -30,13 +28,12 @@ document.getElementById("login-button").addEventListener("click", function () {
     })
     .then(response => {
         if (response.ok) {
-            // Inicio de sesión exitoso
             alert("Inicio de sesión exitoso");
             sessionStorage.setItem("loggedIn", "true");
+            sessionStorage.setItem("userCedula", user1); // Guardar la cédula para futuras consultas
             closeLogin();
             toggleCart();
         } else {
-            // Error en las credenciales
             alert("Usuario o contraseña incorrectos");
         }
     })

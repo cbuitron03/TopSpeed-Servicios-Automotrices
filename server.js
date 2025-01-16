@@ -136,9 +136,8 @@ app.get('/productos', (req, res) => {
     });
 });
 
-// Ruta para inicio de sesión
 app.post('/login', (req, res) => {
-    const { cedula , contrasena }= req.body;
+    const { cedula, contrasena } = req.body;
 
     // Verificar si la cédula existe en la tabla
     const queryCedula = 'SELECT CONTRASENA FROM DUENIO WHERE CEDULA = ?';
@@ -148,23 +147,22 @@ app.post('/login', (req, res) => {
             return res.status(500).send('Error interno del servidor');
         }
 
-        console.log(results); // Para depuración
+        console.log("Resultados de la consulta:", results);
 
         if (results.length === 0) {
-            // La cédula no existe
             return res.status(401).send('Usuario no encontrado');
         }
 
-        const contrasenaAlmacenada = results[0].CONTRASENA; // Mayúsculas para el campo
+        const contrasenaAlmacenada = results[0].CONTRASENA.trim();
 
-        // Comparar contraseñas
-        if (contrasenaAlmacenada.trim() === contrasena) { // Usar trim() para evitar problemas de espacios
+        if (contrasenaAlmacenada === contrasena) {
             return res.status(200).send('Inicio de sesión exitoso');
         } else {
             return res.status(401).send('Credenciales incorrectas');
         }
     });
 });
+
 
 app.post('/procesar-pedido', async (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
