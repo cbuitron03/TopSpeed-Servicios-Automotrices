@@ -87,6 +87,10 @@
             <div id="galeria-cuerpo" class="tabla-container"></div>
         </section>
         <section>
+            <h2>Citas</h2>
+            <div id="galeria-cita" class="tabla-container"></div>
+        </section>
+        <section>
             <h2>Stock</h2>
             <div id="galeria-stock" class="tabla-container"></div>
         </section>
@@ -98,6 +102,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             cargarDatos('/get-cabeceras', 'galeria-cabeceras');
             cargarDatos('/get-cuerpo', 'galeria-cuerpo');
+            cargarDatos('/get-cita', 'galeria-cita');
             cargarDatos('/get-stock', 'galeria-stock');
         });
 
