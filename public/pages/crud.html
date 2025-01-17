@@ -4,8 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Viewer</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        header h1 {
+            text-align: center;
+            color: #007BFF;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tabla-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -14,21 +80,20 @@
     <main>
         <section>
             <h2>Cabeceras</h2>
-            <div id="galeria-cabeceras" class="galeria"></div>
+            <div id="galeria-cabeceras" class="tabla-container"></div>
         </section>
         <section>
             <h2>Cuerpo</h2>
-            <div id="galeria-cuerpo" class="galeria"></div>
+            <div id="galeria-cuerpo" class="tabla-container"></div>
         </section>
         <section>
             <h2>Stock</h2>
-            <div id="galeria-stock" class="galeria"></div>
+            <div id="galeria-stock" class="tabla-container"></div>
         </section>
     </main>
     <footer>
         <p>© 2025 Data Viewer</p>
     </footer>
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             cargarDatos('/get-cabeceras', 'galeria-cabeceras');
@@ -37,7 +102,9 @@
         });
 
         function cargarDatos(endpoint, targetId) {
-            fetch(endpoint)
+            // Agregar un parámetro para evitar el almacenamiento en caché
+            const cacheBuster = `?t=${new Date().getTime()}`;
+            fetch(endpoint + cacheBuster)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`Error al cargar datos de ${endpoint}: ${response.statusText}`);
@@ -45,7 +112,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    renderGaleria(data, targetId);
+                    renderTabla(data, targetId);
                 })
                 .catch(error => {
                     console.error('Error al cargar los datos:', error);
@@ -53,17 +120,41 @@
                 });
         }
 
-        function renderGaleria(data, targetId) {
+        function renderTabla(data, targetId) {
             const container = document.getElementById(targetId);
             container.innerHTML = ''; // Limpiar contenido previo
 
             if (Array.isArray(data) && data.length > 0) {
-                data.forEach(item => {
-                    const div = document.createElement('div');
-                    div.classList.add('item');
-                    div.textContent = JSON.stringify(item); // Mostrar el objeto como texto
-                    container.appendChild(div);
+                // Crear tabla
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+
+                // Encabezados
+                const headers = Object.keys(data[0]);
+                const headerRow = document.createElement('tr');
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
                 });
+                thead.appendChild(headerRow);
+
+                // Filas
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.textContent = row[header];
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+
+                // Agregar tabla al contenedor
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                container.appendChild(table);
             } else {
                 container.innerHTML = '<p>No hay datos disponibles.</p>';
             }

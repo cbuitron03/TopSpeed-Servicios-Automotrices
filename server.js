@@ -367,7 +367,7 @@ app.get('/get-cuerpo', (req, res) => {
     });
 });
 app.get('/get-stock', (req, res) => {
-    db.query('SELECT * FROM PRODUCTO', (err, results) => {
+    db.query('SELECT PRD_ID, PRD_DESC, PRD_PRECIO, PRD_EXISTENCIA, PRD_NOMBRE FROM PRODUCTO', (err, results) => {
         if (err) return res.status(500).send(err);
         res.status(200).send(results);
     });
