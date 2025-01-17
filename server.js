@@ -166,7 +166,7 @@ app.post('/login', (req, res) => {
     });
 });
 
-const { Readable } = require('stream'); // Importar módulo para manejo de streams
+const { Readable } = require('stream'); // Para manejar streams en memoria
 
 app.post('/procesar-pedido', (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
@@ -221,6 +221,41 @@ app.post('/procesar-pedido', (req, res) => {
                         const prd_codigo = result[0].PRD_ID;
                         console.log(`ID del producto ${prd_id}:`, prd_codigo);
 
+                        if (parseInt(prd_codigo, 10) < 4) {
+                            // Insertar en PED_PRODUCTO
+                            const pedidoProductoSql = `
+                                INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                                VALUES (?, ?, ?, ?)
+                            `;
+                            console.log('Ejecutando SQL:', pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)]);
+
+                            db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
+                                if (err) {
+                                    console.error('Error al insertar en PED_PRODUCTO:', err.message);
+                                    errorOccurred = true;
+                                } else {
+                                    console.log(`Producto ${prd_id} insertado correctamente en PED_PRODUCTO.`);
+                                }
+                            });
+                        } else {
+                            // Insertar en CITA
+                            const citaSql = `
+                                INSERT INTO CITA (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
+                                VALUES (?, ?, ?, ?)
+                            `;
+                            console.log('Ejecutando SQL:', citaSql, [cedula, prd_id, fechaPedido, "agendar"]);
+
+                            db.query(citaSql, [cedula, prd_id, fechaPedido, "agendar"], (err) => {
+                                if (err) {
+                                    console.error('Error al insertar en CITA:', err.message);
+                                    errorOccurred = true;
+                                } else {
+                                    console.log(`Cita para producto ${prd_id} creada correctamente.`);
+                                }
+                            });
+                        }
+
+                        // Actualizar inventario
                         const actualizarInventarioSql = `
                             UPDATE PRODUCTO 
                             SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
@@ -244,6 +279,7 @@ app.post('/procesar-pedido', (req, res) => {
                             return res.status(500).send({ error: 'Error al procesar algunos productos.' });
                         }
 
+                        // Generar la factura después de procesar todo
                         const headerQuery = `
                             SELECT D.CEDULA AS CEDULA_RUC, P.PED_NUM AS FACTURA_NO, P.PED_FECHA AS FECHA, 
                                    D.NOMBRE AS NOMBRE, D.EMAIL AS CORREO, D.DIRECCION AS DIRECCION, 
@@ -258,8 +294,6 @@ app.post('/procesar-pedido', (req, res) => {
                                 console.error('Error al obtener la cabecera:', err);
                                 return res.status(500).send('Error al generar la factura.');
                             }
-
-                            console.log('Resultados de la cabecera:', headerResults);
 
                             const bodyQuery = `
                                 SELECT PD.PED_NUM AS FACTURA_NO, P.PRD_NOMBRE AS PRODUCTOS, 
@@ -276,11 +310,8 @@ app.post('/procesar-pedido', (req, res) => {
                                     return res.status(500).send('Error al generar la factura.');
                                 }
 
-                                console.log('Resultados del cuerpo:', bodyResults);
-
-                                // Generar contenido del archivo TXT
+                                // Generar contenido de la factura
                                 let invoiceContent = 'FACTURA\n\n';
-
                                 if (headerResults.length > 0) {
                                     const header = headerResults[0];
                                     invoiceContent += `Cédula/RUC: ${header.CEDULA_RUC}\n`;
@@ -301,12 +332,18 @@ app.post('/procesar-pedido', (req, res) => {
                                     invoiceContent += `${item.PRODUCTOS} | ${item.PRECIO_UNITARIO} | ${item.CANTIDAD} | ${item.SUBTOTAL}\n`;
                                 });
 
-                                const stream = new Readable();
-                                stream.push(invoiceContent);
-                                stream.push(null);
+                                console.log('Contenido de la factura generado.');
 
+                                // Crear un stream para enviar el archivo como descarga
+                                const stream = new Readable();
+                                stream.push(invoiceContent); // Agregar contenido al stream
+                                stream.push(null); // Indicar que no hay más datos
+
+                                // Configurar encabezados para la descarga del archivo
                                 res.setHeader('Content-Disposition', `attachment; filename=factura_${lastInsertedPedNum}.txt`);
                                 res.setHeader('Content-Type', 'text/plain');
+
+                                // Enviar el stream como respuesta
                                 stream.pipe(res);
                             });
                         });
