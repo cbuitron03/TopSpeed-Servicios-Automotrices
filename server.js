@@ -166,6 +166,8 @@ app.post('/login', (req, res) => {
     });
 });
 
+const { Readable } = require('stream'); // Importar módulo para manejo de streams
+
 app.post('/procesar-pedido', (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
 
@@ -299,24 +301,13 @@ app.post('/procesar-pedido', (req, res) => {
                                     invoiceContent += `${item.PRODUCTOS} | ${item.PRECIO_UNITARIO} | ${item.CANTIDAD} | ${item.SUBTOTAL}\n`;
                                 });
 
-                                const filePath = path.join(__dirname, `factura_${lastInsertedPedNum}.txt`);
-                                console.log('Ruta del archivo de factura:', filePath);
+                                const stream = new Readable();
+                                stream.push(invoiceContent);
+                                stream.push(null);
 
-                                fs.writeFile(filePath, invoiceContent, (err) => {
-                                    if (err) {
-                                        console.error('Error al escribir el archivo:', err);
-                                        return res.status(500).send('Error al generar la factura.');
-                                    }
-
-                                    console.log('Factura generada correctamente:', filePath);
-
-                                    res.download(filePath, `factura_${lastInsertedPedNum}.txt`, (err) => {
-                                        if (err) console.error('Error al enviar el archivo:', err);
-                                        fs.unlink(filePath, (err) => {
-                                            if (err) console.error('Error al eliminar el archivo:', err);
-                                        });
-                                    });
-                                });
+                                res.setHeader('Content-Disposition', `attachment; filename=factura_${lastInsertedPedNum}.txt`);
+                                res.setHeader('Content-Type', 'text/plain');
+                                stream.pipe(res);
                             });
                         });
                     }
