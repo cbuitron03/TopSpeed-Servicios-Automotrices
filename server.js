@@ -289,18 +289,13 @@ app.post('/procesar-pedido', (req, res) => {
             });
         });
     });
-    app.handle(
+    /*app.handle(
         { method: 'POST', url: generateInvoiceUrl, body: { lastInsertedPedNum } },
         { send: (data) => res.send(data), status: res.status.bind(res) },
         () => {
             console.log('Factura generada y enviada correctamente.');
         }
-    );
-});
-// Endpoint para generar y descargar factura
-app.post('/generate-invoice', (req, res) => {
-    const { lastInsertedPedNum } = req.body;
-
+    );*/
     if (!lastInsertedPedNum) {
         return res.status(400).send('El número de pedido es obligatorio.');
     }
@@ -385,3 +380,9 @@ app.post('/generate-invoice', (req, res) => {
         });
     });
 });
+/* Endpoint para generar y descargar factura
+app.post('/generate-invoice', (req, res) => {
+    const { lastInsertedPedNum } = req.body;
+
+    
+});*/
