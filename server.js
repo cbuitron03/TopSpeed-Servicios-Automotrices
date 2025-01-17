@@ -219,38 +219,6 @@ app.post('/procesar-pedido', (req, res) => {
                         const prd_codigo = result[0].PRD_ID;
                         console.log(`ID del producto ${prd_id}:`, prd_codigo);
 
-                        if (parseInt(prd_codigo, 10) < 4) {
-                            const pedidoProductoSql = `
-                                INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                                VALUES (?, ?, ?, ?)
-                            `;
-                            console.log('Ejecutando SQL:', pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)]);
-
-                            db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
-                                if (err) {
-                                    console.error('Error al insertar en PED_PRODUCTO:', err.message);
-                                    errorOccurred = true;
-                                } else {
-                                    console.log(`Producto ${prd_id} insertado correctamente en PED_PRODUCTO.`);
-                                }
-                            });
-                        } else {
-                            const citaSql = `
-                                INSERT INTO CITA (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
-                                VALUES (?, ?, ?, ?)
-                            `;
-                            console.log('Ejecutando SQL:', citaSql, [cedula, prd_id, fechaPedido, "agendar"]);
-
-                            db.query(citaSql, [cedula, prd_id, fechaPedido, "agendar"], (err) => {
-                                if (err) {
-                                    console.error('Error al insertar en CITA:', err.message);
-                                    errorOccurred = true;
-                                } else {
-                                    console.log(`Cita para producto ${prd_id} creada correctamente.`);
-                                }
-                            });
-                        }
-
                         const actualizarInventarioSql = `
                             UPDATE PRODUCTO 
                             SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
@@ -308,7 +276,47 @@ app.post('/procesar-pedido', (req, res) => {
 
                                 console.log('Resultados del cuerpo:', bodyResults);
 
-                                // Aquí continúa la lógica de escritura del archivo y descarga.
+                                // Generar contenido del archivo TXT
+                                let invoiceContent = 'FACTURA\n\n';
+
+                                if (headerResults.length > 0) {
+                                    const header = headerResults[0];
+                                    invoiceContent += `Cédula/RUC: ${header.CEDULA_RUC}\n`;
+                                    invoiceContent += `Factura No: ${header.FACTURA_NO}\n`;
+                                    invoiceContent += `Fecha: ${header.FECHA}\n`;
+                                    invoiceContent += `Nombre: ${header.NOMBRE}\n`;
+                                    invoiceContent += `Correo: ${header.CORREO}\n`;
+                                    invoiceContent += `Dirección: ${header.DIRECCION}\n`;
+                                    invoiceContent += `Total sin IVA: ${header.TOTAL_SIN_IVA}\n`;
+                                    invoiceContent += `IVA (15%): ${header.IVA}\n`;
+                                    invoiceContent += `Total: ${header.TOTAL}\n\n`;
+                                }
+
+                                invoiceContent += 'DETALLE\n';
+                                invoiceContent += 'Producto | Precio Unitario | Cantidad | Subtotal\n';
+
+                                bodyResults.forEach((item) => {
+                                    invoiceContent += `${item.PRODUCTOS} | ${item.PRECIO_UNITARIO} | ${item.CANTIDAD} | ${item.SUBTOTAL}\n`;
+                                });
+
+                                const filePath = path.join(__dirname, `factura_${lastInsertedPedNum}.txt`);
+                                console.log('Ruta del archivo de factura:', filePath);
+
+                                fs.writeFile(filePath, invoiceContent, (err) => {
+                                    if (err) {
+                                        console.error('Error al escribir el archivo:', err);
+                                        return res.status(500).send('Error al generar la factura.');
+                                    }
+
+                                    console.log('Factura generada correctamente:', filePath);
+
+                                    res.download(filePath, `factura_${lastInsertedPedNum}.txt`, (err) => {
+                                        if (err) console.error('Error al enviar el archivo:', err);
+                                        fs.unlink(filePath, (err) => {
+                                            if (err) console.error('Error al eliminar el archivo:', err);
+                                        });
+                                    });
+                                });
                             });
                         });
                     }
