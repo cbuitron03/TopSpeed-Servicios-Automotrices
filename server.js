@@ -353,3 +353,22 @@ app.post('/procesar-pedido', (req, res) => {
         });
     });
 });
+
+app.get('/get-cabeceras', (req, res) => {
+    db.query('SELECT * FROM PEDIDO', (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(results);
+    });
+});
+app.get('/get-cuerpo', (req, res) => {
+    db.query('SELECT * FROM PED_PRODUCTO', (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(results);
+    });
+});
+app.get('/get-stock', (req, res) => {
+    db.query('SELECT * FROM PRODUCTO', (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(results);
+    });
+});
