@@ -309,7 +309,7 @@ app.post('/generate-invoice', (req, res) => {
     const headerQuery = `
         SELECT D.CEDULA AS CEDULA_RUC, P.PED_NUM AS FACTURA_NO, P.PED_FECHA AS FECHA, 
                D.NOMBRE AS NOMBRE, D.EMAIL AS CORREO, D.DIRECCION AS DIRECCION, 
-               P.PED_PR_TOT AS TOTAL_SIN_IVA, (P.PED_PR_TOT + (P.PED_PR_TOT * 0.15)) AS TOTAL 
+               P.PED_PR_TOT AS TOTAL_SIN_IVA, (P.PED_PR_TOT * 0.15) AS IVA, (P.PED_PR_TOT + (P.PED_PR_TOT * 0.15)) AS TOTAL 
         FROM DUENIO D, PEDIDO P
         WHERE D.CEDULA = P.CEDULA AND P.PED_NUM = ?;
     `;
@@ -347,6 +347,7 @@ app.post('/generate-invoice', (req, res) => {
                 invoiceContent += `Correo: ${header.CORREO}\n`;
                 invoiceContent += `Dirección: ${header.DIRECCION}\n`;
                 invoiceContent += `Total sin IVA: ${header.TOTAL_SIN_IVA}\n`;
+                invoiceContent += `IVA: ${header.IVA}\n`;
                 invoiceContent += `Total: ${header.TOTAL}\n\n`;
             }
 
