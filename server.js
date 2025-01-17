@@ -169,220 +169,155 @@ app.post('/login', (req, res) => {
 app.post('/procesar-pedido', (req, res) => {
     const { cedula, total, fechaPedido, fechaEntrega, productos } = req.body;
 
-    // Validar datos básicos antes de procesar
     if (!cedula || !total || !fechaPedido || !fechaEntrega || !productos || productos.length === 0) {
         return res.status(400).send({ error: 'Faltan datos requeridos para procesar el pedido.' });
     }
 
-    // Query para insertar en la tabla PEDIDO
+    // Insertar en la tabla PEDIDO
     const pedidoSql = `
         INSERT INTO PEDIDO (CEDULA, PED_PR_TOT, PED_FECHA, PED_FECH_ENT) 
         VALUES (?, ?, ?, ?)
     `;
-    console.log('SQL Query PEDIDO:', pedidoSql, [cedula, parseFloat(total), fechaPedido, fechaEntrega]);
 
     db.query(pedidoSql, [cedula, parseFloat(total), fechaPedido, fechaEntrega], (err) => {
         if (err) {
-            console.error('Error inserting into PEDIDO table:', err.message);
+            console.error('Error al insertar en PEDIDO:', err.message);
             return res.status(500).send({ error: 'Error al procesar el pedido.' });
         }
 
-        // Obtener el último PED_NUM insertado
+        // Obtener el último PED_NUM
         db.query('SELECT LAST_INSERT_ID() AS lastInsertedPedNum', (err, lastInsertResult) => {
             if (err) {
-                console.error('Error getting last insert ID:', err.message);
+                console.error('Error al obtener el último PED_NUM:', err.message);
                 return res.status(500).send({ error: 'Error al obtener el último pedido.' });
             }
 
             const lastInsertedPedNum = lastInsertResult[0].lastInsertedPedNum;
 
-            // Procesar cada producto en la lista
-            let completed = 0; // Contador de operaciones completadas
+            let completed = 0;
             const totalProductos = productos.length;
-            let errorOccurred = false; // Flag para controlar errores
+            let errorOccurred = false;
 
             productos.forEach((producto) => {
                 const { prd_id, cantidad, precio } = producto;
 
-                // Obtener PRD_ID a partir del nombre del producto
-                const QUERYPRDID = 'SELECT PRD_ID FROM PRODUCTO WHERE PRD_NOMBRE = ?';
-                console.log('SQL Query PRD_ID:', QUERYPRDID, [prd_id]);
-
-                db.query(QUERYPRDID, [prd_id], (err, result) => {
-                    if (err) {
-                        console.error('Error getting product ID:', err.message);
+                db.query('SELECT PRD_ID FROM PRODUCTO WHERE PRD_NOMBRE = ?', [prd_id], (err, result) => {
+                    if (err || result.length === 0) {
+                        console.error(`Error al obtener ID para producto ${prd_id}:`, err || 'Producto no encontrado');
                         errorOccurred = true;
-                        return res.status(500).send({ error: 'Error al obtener el ID del producto.' });
-                    }
+                    } else {
+                        const prd_codigo = result[0].PRD_ID;
 
-                    console.log('Resultado de PRD_ID:', result);
+                        if (parseInt(prd_codigo, 10) < 4) {
+                            // Insertar en PED_PRODUCTO
+                            const pedidoProductoSql = `
+                                INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
+                                VALUES (?, ?, ?, ?)
+                            `;
+                            db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
+                                if (err) errorOccurred = true;
+                            });
+                        } else {
+                            // Insertar en CITA
+                            const citaSql = `
+                                INSERT INTO CITA (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
+                                VALUES (?, ?, ?, ?)
+                            `;
+                            db.query(citaSql, [cedula, prd_id, fechaPedido, "agendar"], (err) => {
+                                if (err) errorOccurred = true;
+                            });
+                        }
 
-                    if (result.length === 0) {
-                        console.error('Producto no encontrado:', prd_id);
-                        errorOccurred = true;
-                        return res.status(400).send({ error: `Producto no encontrado: ${prd_nombre}` });
-                    }
-
-                    const prd_codigo = result[0].PRD_ID;
-
-                    /*if (!prd_codigo || !cantidad || !precio) {
-                        console.error('Producto con datos faltantes:', producto);
-                        errorOccurred = true;
-                        return res.status(400).send({ error: 'Datos incompletos en la lista de productos.' });
-                    }*/
-                    if(parseInt(prd_codigo, 10)<4){
-                        
-                        // Query para insertar en PEDIDO_PRODUCTO
-                        const pedidoProductoSql = `
-                            INSERT INTO PED_PRODUCTO (PRD_ID, PED_NUM, PED_CANT, PED_PR) 
-                            VALUES (?, ?, ?, ?)
-                        `;
-                        console.log('SQL Query PED_PRODUCTO:', pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)]);
-                        
-                        db.query(pedidoProductoSql, [prd_codigo, lastInsertedPedNum, cantidad, parseFloat(precio)], (err) => {
-                            if (err) {
-                            console.error('Error inserting into PED_PRODUCTO table:', err.message);
-                            errorOccurred = true;
-                            return res.status(500).send({ error: 'Error al procesar el pedido.' });
-                            }
-                        });
-                    }
-                    else{
-                        // Query para insertar en PEDIDO_PRODUCTO
-                        const citaSql = `
-                            INSERT INTO CITA (CEDULA, CITA_DESC, CITA_FECHA, CITA_ESTADO) 
-                            VALUES (?, ?, ?, ?)
-                        `;
-                        console.log('SQL Query CITA:', citaSql, [cedula, prd_id, fechaPedido, "agendar"]);
-                        
-                        db.query(citaSql, [cedula, prd_id, fechaPedido, "agendar"], (err) => {
-                            if (err) {
-                            console.error('Error inserting into CITA table:', err.message);
-                            errorOccurred = true;
-                            return res.status(500).send({ error: 'Error al procesar el pedido.' });
-                            }
-                        });
-                    }
-
-                        // Query para actualizar el inventario
+                        // Actualizar inventario
                         const actualizarInventarioSql = `
                             UPDATE PRODUCTO 
                             SET PRD_EXISTENCIA = PRD_EXISTENCIA - ? 
                             WHERE PRD_ID = ?
                         `;
-                        console.log('SQL Query UPDATE PRODUCTO:', actualizarInventarioSql, [cantidad, prd_codigo]);
-
                         db.query(actualizarInventarioSql, [cantidad, prd_codigo], (err) => {
-                            if (err) {
-                                console.error('Error updating PRODUCTO table:', err.message);
-                                errorOccurred = true;
-                                return res.status(500).send({ error: 'Error al procesar el pedido.' });
-                            }
-
-                            // Incrementar contador y verificar si todas las operaciones terminaron
-                            completed++;
-                            if (completed === totalProductos && !errorOccurred) {
-                                res.status(200).send({ message: 'Pedido procesado exitosamente.' });
-                            }
+                            if (err) errorOccurred = true;
                         });
-                });
-            });
-        });
-    });
-    /*app.handle(
-        { method: 'POST', url: generateInvoiceUrl, body: { lastInsertedPedNum } },
-        { send: (data) => res.send(data), status: res.status.bind(res) },
-        () => {
-            console.log('Factura generada y enviada correctamente.');
-        }
-    );*/
-    if (!lastInsertedPedNum) {
-        return res.status(400).send('El número de pedido es obligatorio.');
-    }
-
-    // Consultas para la cabecera y el cuerpo
-    const headerQuery = `
-        SELECT D.CEDULA AS CEDULA_RUC, P.PED_NUM AS FACTURA_NO, P.PED_FECHA AS FECHA, 
-               D.NOMBRE AS NOMBRE, D.EMAIL AS CORREO, D.DIRECCION AS DIRECCION, 
-               P.PED_PR_TOT AS TOTAL_SIN_IVA, (P.PED_PR_TOT * 0.15) AS IVA, (P.PED_PR_TOT + (P.PED_PR_TOT * 0.15)) AS TOTAL 
-        FROM DUENIO D, PEDIDO P
-        WHERE D.CEDULA = P.CEDULA AND P.PED_NUM = ?;
-    `;
-
-    const bodyQuery = `
-        SELECT PD.PED_NUM AS FACTURA_NO, P.PRD_NOMBRE AS PRODUCTOS, 
-               PP.PED_PR AS PRECIO_UNITARIO, PP.PED_CANT AS CANTIDAD, 
-               (PP.PED_PR * PP.PED_CANT) AS SUBTOTAL 
-        FROM PRODUCTO P, PED_PRODUCTO PP, PEDIDO PD
-        WHERE P.PRD_ID = PP.PRD_ID AND PD.PED_NUM = PP.PED_NUM AND PD.PED_NUM = ?;
-    `;
-
-    // Ejecutar las consultas
-    db.query(headerQuery, [lastInsertedPedNum], (err, headerResults) => {
-        if (err) {
-            console.error('Error al obtener la cabecera:', err);
-            return res.status(500).send('Error al generar la factura.');
-        }
-
-        db.query(bodyQuery, [lastInsertedPedNum], (err, bodyResults) => {
-            if (err) {
-                console.error('Error al obtener el cuerpo:', err);
-                return res.status(500).send('Error al generar la factura.');
-            }
-
-            // Generar contenido del archivo TXT
-            let invoiceContent = 'FACTURA\n\n';
-
-            if (headerResults.length > 0) {
-                const header = headerResults[0];
-                invoiceContent += `Cédula/RUC: ${header.CEDULA_RUC}\n`;
-                invoiceContent += `Factura No: ${header.FACTURA_NO}\n`;
-                invoiceContent += `Fecha: ${header.FECHA}\n`;
-                invoiceContent += `Nombre: ${header.NOMBRE}\n`;
-                invoiceContent += `Correo: ${header.CORREO}\n`;
-                invoiceContent += `Dirección: ${header.DIRECCION}\n`;
-                invoiceContent += `Total sin IVA: ${header.TOTAL_SIN_IVA}\n`;
-                invoiceContent += `IVA: ${header.IVA}\n`;
-                invoiceContent += `Total: ${header.TOTAL}\n\n`;
-            }
-
-            invoiceContent += 'DETALLE\n';
-            invoiceContent += 'Producto | Precio Unitario | Cantidad | Subtotal\n';
-
-            bodyResults.forEach((item) => {
-                invoiceContent += `${item.PRODUCTOS} | ${item.PRECIO_UNITARIO} | ${item.CANTIDAD} | ${item.SUBTOTAL}\n`;
-            });
-
-            // Ruta del archivo temporal
-            const filePath = path.join(__dirname, `factura_${lastInsertedPedNum}.txt`);
-
-            // Escribir el archivo
-            fs.writeFile(filePath, invoiceContent, (err) => {
-                if (err) {
-                    console.error('Error al escribir el archivo:', err);
-                    return res.status(500).send('Error al generar la factura.');
-                }
-
-                // Enviar el archivo como descarga
-                res.download(filePath, `factura_${lastInsertedPedNum}.txt`, (err) => {
-                    if (err) {
-                        console.error('Error al enviar el archivo:', err);
                     }
 
-                    // Eliminar el archivo después de enviarlo
-                    fs.unlink(filePath, (err) => {
-                        if (err) {
-                            console.error('Error al eliminar el archivo:', err);
+                    // Verificar si todas las operaciones han terminado
+                    completed++;
+                    if (completed === totalProductos) {
+                        if (errorOccurred) {
+                            return res.status(500).send({ error: 'Error al procesar algunos productos.' });
                         }
-                    });
+
+                        // Ahora ejecutamos las consultas para la cabecera y cuerpo
+                        const headerQuery = `
+                            SELECT D.CEDULA AS CEDULA_RUC, P.PED_NUM AS FACTURA_NO, P.PED_FECHA AS FECHA, 
+                                   D.NOMBRE AS NOMBRE, D.EMAIL AS CORREO, D.DIRECCION AS DIRECCION, 
+                                   P.PED_PR_TOT AS TOTAL_SIN_IVA, (P.PED_PR_TOT * 0.15) AS IVA, (P.PED_PR_TOT + (P.PED_PR_TOT * 0.15)) AS TOTAL 
+                            FROM DUENIO D, PEDIDO P
+                            WHERE D.CEDULA = P.CEDULA AND P.PED_NUM = ?;
+                        `;
+
+                        const bodyQuery = `
+                            SELECT PD.PED_NUM AS FACTURA_NO, P.PRD_NOMBRE AS PRODUCTOS, 
+                                   PP.PED_PR AS PRECIO_UNITARIO, PP.PED_CANT AS CANTIDAD, 
+                                   (PP.PED_PR * PP.PED_CANT) AS SUBTOTAL 
+                            FROM PRODUCTO P, PED_PRODUCTO PP, PEDIDO PD
+                            WHERE P.PRD_ID = PP.PRD_ID AND PD.PED_NUM = PP.PED_NUM AND PD.PED_NUM = ?;
+                        `;
+
+                        db.query(headerQuery, [lastInsertedPedNum], (err, headerResults) => {
+                            if (err) {
+                                console.error('Error al obtener la cabecera:', err);
+                                return res.status(500).send('Error al generar la factura.');
+                            }
+
+                            db.query(bodyQuery, [lastInsertedPedNum], (err, bodyResults) => {
+                                if (err) {
+                                    console.error('Error al obtener el cuerpo:', err);
+                                    return res.status(500).send('Error al generar la factura.');
+                                }
+
+                                // Generar contenido del archivo TXT
+                                let invoiceContent = 'FACTURA\n\n';
+
+                                if (headerResults.length > 0) {
+                                    const header = headerResults[0];
+                                    invoiceContent += `Cédula/RUC: ${header.CEDULA_RUC}\n`;
+                                    invoiceContent += `Factura No: ${header.FACTURA_NO}\n`;
+                                    invoiceContent += `Fecha: ${header.FECHA}\n`;
+                                    invoiceContent += `Nombre: ${header.NOMBRE}\n`;
+                                    invoiceContent += `Correo: ${header.CORREO}\n`;
+                                    invoiceContent += `Dirección: ${header.DIRECCION}\n`;
+                                    invoiceContent += `Total sin IVA: ${header.TOTAL_SIN_IVA}\n`;
+                                    invoiceContent += `IVA: ${header.IVA}\n`;
+                                    invoiceContent += `Total: ${header.TOTAL}\n\n`;
+                                }
+
+                                invoiceContent += 'DETALLE\n';
+                                invoiceContent += 'Producto | Precio Unitario | Cantidad | Subtotal\n';
+
+                                bodyResults.forEach((item) => {
+                                    invoiceContent += `${item.PRODUCTOS} | ${item.PRECIO_UNITARIO} | ${item.CANTIDAD} | ${item.SUBTOTAL}\n`;
+                                });
+
+                                const filePath = path.join(__dirname, `factura_${lastInsertedPedNum}.txt`);
+
+                                fs.writeFile(filePath, invoiceContent, (err) => {
+                                    if (err) {
+                                        console.error('Error al escribir el archivo:', err);
+                                        return res.status(500).send('Error al generar la factura.');
+                                    }
+
+                                    res.download(filePath, `factura_${lastInsertedPedNum}.txt`, (err) => {
+                                        if (err) console.error('Error al enviar el archivo:', err);
+                                        fs.unlink(filePath, (err) => {
+                                            if (err) console.error('Error al eliminar el archivo:', err);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }
                 });
             });
         });
     });
 });
-/* Endpoint para generar y descargar factura
-app.post('/generate-invoice', (req, res) => {
-    const { lastInsertedPedNum } = req.body;
-
-    
-});*/
