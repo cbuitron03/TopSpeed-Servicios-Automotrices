@@ -287,7 +287,7 @@ app.post('/procesar-pedido', (req, res) => {
                                     invoiceContent += `Correo: ${header.CORREO}\n`;
                                     invoiceContent += `Dirección: ${header.DIRECCION}\n`;
                                     invoiceContent += `Total sin IVA: ${header.TOTAL_SIN_IVA}\n`;
-                                    invoiceContent += `IVA: ${header.IVA}\n`;
+                                    invoiceContent += `IVA (15%): ${header.IVA}\n`;
                                     invoiceContent += `Total: ${header.TOTAL}\n\n`;
                                 }
 
