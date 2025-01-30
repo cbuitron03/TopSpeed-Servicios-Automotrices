@@ -61,7 +61,7 @@ app.get('/vehiculo', (req, res) => {
             console.error('Error al obtener VEHICULO:', err);
             return res.status(500).send('Error al obtener VEHICULO');
         }
-        res.json(results.rows);
+        res.json(results.rows); // Corregido para retornar un array directamente
     });
 });
 
@@ -73,7 +73,7 @@ app.get('/duenio', (req, res) => {
             console.error('Error al obtener DUENIO:', err);
             return res.status(500).send('Error al obtener DUENIO');
         }
-        res.json(results.rows);
+        res.json(results.rows); // Corregido para retornar un array directamente
     });
 });
 
@@ -87,7 +87,7 @@ app.get('/productos', (req, res) => {
             return res.status(500).json({ error: 'Error al consultar PRODUCTO' });
         }
 
-        res.json(results.rows);
+        res.json(results.rows); // Corregido para retornar un array directamente
     });
 });
 

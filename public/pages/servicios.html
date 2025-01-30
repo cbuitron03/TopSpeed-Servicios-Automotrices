@@ -115,7 +115,7 @@
                     galeriaDetailing.innerHTML = '';
 
                     // Iterar sobre los productos y agregar a la categoría correspondiente
-                    data.data.forEach(producto => {
+                    data.forEach(producto => {
                         const [id, nombre, precio, stock, descripcion, imagenPrincipal, ancho, alto, titulo, descAdicional, imagenesAdicionales, categoria] = producto;
 
                         // Crear el div del item
