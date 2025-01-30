@@ -95,78 +95,89 @@
             cargarServicios();
         });
 
-        function cargarServicios() {
-            fetch('/productos') // Cambia la ruta al endpoint de tu servidor
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Filtrar productos por categorías
-                    const galeriaOffRoad = document.getElementById('galeria-offroad');
-                    const galeriaMantenimiento = document.getElementById('galeria-mantenimiento');
-                    const galeriaDetailing = document.getElementById('galeria-detailing');
+        
+function cargarServicios() {
+    fetch('/productos') // Cambia la ruta al endpoint de tu servidor
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Filtrar productos por categorías
+            const galeriaOffRoad = document.getElementById('galeria-offroad');
+            const galeriaMantenimiento = document.getElementById('galeria-mantenimiento');
+            const galeriaDetailing = document.getElementById('galeria-detailing');
 
-                    // Limpiar las galerías
-                    galeriaOffRoad.innerHTML = '';
-                    galeriaMantenimiento.innerHTML = '';
-                    galeriaDetailing.innerHTML = '';
+            // Limpiar las galerías
+            galeriaOffRoad.innerHTML = '';
+            galeriaMantenimiento.innerHTML = '';
+            galeriaDetailing.innerHTML = '';
 
-                    // Iterar sobre los productos y agregar a la categoría correspondiente
-                    data.forEach(producto => {
-                        const [id, nombre, precio, stock, descripcion, imagenPrincipal, ancho, alto, titulo, descAdicional, imagenesAdicionales, categoria] = producto;
+            // Iterar sobre los productos y agregar a la categoría correspondiente
+            data.forEach(producto => {
+                const id = producto.PRD_ID;
+                const nombre = producto.PRD_NOMBRE;
+                const precio = producto.PRD_PRECIO;
+                const stock = producto.PRD_EXISTENCIA;
+                const descripcion = producto.PRD_DESC;
+                const imagenPrincipal = producto.PRD_I_P;
+                const ancho = producto.PRD_ANC;
+                const alto = producto.PRD_ALT;
+                const titulo = producto.PRD_T_M;
+                const descAdicional = producto.PRD_D_M;
+                const imagenesAdicionales = producto.PRD_I_S.split(','); // Convertir string en array
+                const categoria = producto.PRD_ALT1;
 
-                        // Crear el div del item
-                        const item = document.createElement('div');
-                        item.classList.add('item');
-                        item.dataset.nombre = nombre;
-                        item.dataset.precio = precio;
+                // Crear el div del item
+                const item = document.createElement('div');
+                item.classList.add('item');
+                item.dataset.nombre = nombre;
+                item.dataset.precio = precio;
 
-                        // Crear la imagen
-                        const img = document.createElement('img');
-                        img.classList.add('imagen');
-                        img.src = imagenPrincipal;
-                        img.width = ancho;
-                        img.height = alto;
-                        img.alt = nombre;
-                        img.onclick = () => abrirModal(nombre, descAdicional, imagenesAdicionales);
+                // Crear la imagen
+                const img = document.createElement('img');
+                img.classList.add('imagen');
+                img.src = imagenPrincipal;
+                img.width = ancho;
+                img.height = alto;
+                img.alt = nombre;
+                img.onclick = () => abrirModal(nombre, descAdicional, imagenesAdicionales);
 
-                        // Crear la descripción
-                        const descripcionDiv = document.createElement('div');
-                        descripcionDiv.classList.add('descripcion');
-                        descripcionDiv.textContent = descripcion;
+                // Crear la descripción
+                const descripcionDiv = document.createElement('div');
+                descripcionDiv.classList.add('descripcion');
+                descripcionDiv.textContent = descripcion;
 
-                        // Agregar la imagen y la descripción al item
-                        item.appendChild(img);
-                        item.appendChild(descripcionDiv);
+                // Agregar la imagen y la descripción al item
+                item.appendChild(img);
+                item.appendChild(descripcionDiv);
 
-                        // Agregar el item a la galería correspondiente
-                        switch (categoria) {
-                            case 'Cabrestantes':
-                            case 'Halógenos':
-                            case 'Suspensión Fox':
-                                galeriaOffRoad.appendChild(item);
-                                break;
-                            case 'Cita ABC de Frenos':
-                            case 'Cita Enllantaje':
-                            case 'Cita Alineación':
-                            case 'Cita Balanceo':
-                                galeriaMantenimiento.appendChild(item);
-                                break;
-                            case 'Cita Detailing Exterior':
-                            case 'Cita Detailing Interior':
-                            case 'Cita Detailing de Motor':
-                                galeriaDetailing.appendChild(item);
-                                break;
-                        }
-                    });
-                })
-                .catch(error => console.error('Error al cargar los productos:', error));
-        }
-
-        function abrirModal(nombre, descripcion, imagenes) {
+                // Agregar el item a la galería correspondiente
+                switch (categoria) {
+                    case 'Cabrestantes':
+                    case 'Halógenos':
+                    case 'Suspensión Fox':
+                        galeriaOffRoad.appendChild(item);
+                        break;
+                    case 'Cita ABC de Frenos':
+                    case 'Cita Enllantaje':
+                    case 'Cita Alineación':
+                    case 'Cita Balanceo':
+                        galeriaMantenimiento.appendChild(item);
+                        break;
+                    case 'Cita Detailing Exterior':
+                    case 'Cita Detailing Interior':
+                    case 'Cita Detailing de Motor':
+                        galeriaDetailing.appendChild(item);
+                        break;
+                }
+            });
+        })
+        .catch(error => console.error('Error al cargar los productos:', error));
+}
+function abrirModal(nombre, descripcion, imagenes) {
             // Lógica del modal
             console.log('Abrir modal con:', nombre, descripcion, imagenes);
         }
