@@ -29,6 +29,13 @@
     </nav>
     <article>
         <h1>Servicios</h1>
+        <label for="filtro-categorias">Filtrar por categoría:</label>
+        <select id="filtro-categorias" onchange="filtrarCategorias()">
+            <option value="todas">Todas</option>
+            <option value="offroad">Accesorios Off-Road</option>
+            <option value="mantenimiento">Mantenimiento</option>
+            <option value="detailing">Detailing</option>
+        </select>
         <h2>Accesorios Off-Road</h2>
         <div class="galeria" id="galeria-offroad"></div>
 
@@ -176,7 +183,15 @@ function cargarServicios() {
             });
         })
         .catch(error => console.error('Error al cargar los productos:', error));
+        
 }
+function filtrarCategorias() {
+            const seleccion = document.getElementById("filtro-categorias").value;
+            
+            document.getElementById("galeria-offroad").style.display = seleccion === "offroad" || seleccion === "todas" ? "block" : "none";
+            document.getElementById("galeria-mantenimiento").style.display = seleccion === "mantenimiento" || seleccion === "todas" ? "block" : "none";
+            document.getElementById("galeria-detailing").style.display = seleccion === "detailing" || seleccion === "todas" ? "block" : "none";
+        }
 function abrirModal(nombre, descripcion, imagenes) {
             // Lógica del modal
             console.log('Abrir modal con:', nombre, descripcion, imagenes);
