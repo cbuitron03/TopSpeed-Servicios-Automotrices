@@ -171,6 +171,22 @@ app.post('/procesar-pedido', (req, res) => {
                             if (err) {
                                 console.error('Error al insertar en PED_PRODUCTO:', err.message);
                                 errorOccurred = true;
+                                // Actualizar inventario
+                                const actualizarInventarioSql = `
+                                    UPDATE "PRODUCTO" 
+                                    SET "PRD_EXISTENCIA" = "PRD_EXISTENCIA" - $1 
+                                    WHERE "PRD_ID" = $2
+                                `;
+                                console.log('Ejecutando SQL:', actualizarInventarioSql);
+
+                                pool.query(actualizarInventarioSql, [cantidad, prd_codigo], (err) => {
+                                    if (err) {
+                                        console.error('Error al actualizar el inventario:', err.message);
+                                        errorOccurred = true;
+                                    } else {
+                                        console.log(`Inventario actualizado para producto ${prd_id}.`);
+                                    }
+                                });
                             } else {
                                 console.log(`Producto ${prd_id} insertado correctamente en PED_PRODUCTO.`);
                             }
@@ -192,23 +208,6 @@ app.post('/procesar-pedido', (req, res) => {
                             }
                         });
                     }
-
-                    // Actualizar inventario
-                    const actualizarInventarioSql = `
-                        UPDATE "PRODUCTO" 
-                        SET "PRD_EXISTENCIA" = "PRD_EXISTENCIA" - $1 
-                        WHERE "PRD_ID" = $2
-                    `;
-                    console.log('Ejecutando SQL:', actualizarInventarioSql);
-
-                    pool.query(actualizarInventarioSql, [cantidad, prd_codigo], (err) => {
-                        if (err) {
-                            console.error('Error al actualizar el inventario:', err.message);
-                            errorOccurred = true;
-                        } else {
-                            console.log(`Inventario actualizado para producto ${prd_id}.`);
-                        }
-                    });
                 }
 
                 completed++;
