@@ -172,6 +172,21 @@ app.post('/procesar-pedido', (req, res) => {
                                 console.error('Error al insertar en PED_PRODUCTO:', err.message);
                                 errorOccurred = true;
                                 // Actualizar inventario
+                                const eliminarpedido = `
+                                    DELETE FROM "PEDIDO" WHERE "PED_NUM" = $1
+                                `;
+                                console.log('Ejecutando SQL:', eliminarpedido);
+
+                                pool.query(actualizarInventarioSql, [lastInsertedPedNum], (err) => {
+                                    if (err) {
+                                        console.error('Error al eliminar pedido:', err.message);
+                                        errorOccurred = true;
+                                    } else {
+                                        console.log(`Pedido Eliminado ${lastInsertedPedNum}.`);
+                                    }
+                                });
+                            } else {
+                                console.log(`Producto ${prd_id} insertado correctamente en PED_PRODUCTO.`);
                                 const actualizarInventarioSql = `
                                     UPDATE "PRODUCTO" 
                                     SET "PRD_EXISTENCIA" = "PRD_EXISTENCIA" - $1 
@@ -187,8 +202,6 @@ app.post('/procesar-pedido', (req, res) => {
                                         console.log(`Inventario actualizado para producto ${prd_id}.`);
                                     }
                                 });
-                            } else {
-                                console.log(`Producto ${prd_id} insertado correctamente en PED_PRODUCTO.`);
                             }
                         });
                     } else {
